@@ -15,8 +15,8 @@ settings:
     # Bumped by scripts/release.sh, which edits this file and re-runs
     # `xcodegen generate` — don't hand-edit project.pbxproj's version
     # directly, it gets overwritten on the next regenerate.
-    MARKETING_VERSION: "0.0.2"
-    CURRENT_PROJECT_VERSION: "16"
+    MARKETING_VERSION: "0.0.3"
+    CURRENT_PROJECT_VERSION: "22"
 
 targets:
   Patchly:
