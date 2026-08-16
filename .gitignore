@@ -13,3 +13,4 @@ build/
 
 # Downloaded Sparkle CLI tools (scripts/generate-sparkle-keys.sh)
 scripts/.sparkle-tools/
+.claude
