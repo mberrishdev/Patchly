@@ -79,14 +79,16 @@ if $DRY_RUN; then
   step "Skipping the version bump (dry run)"
 else
   step "Setting version to $VERSION"
-  # Written straight into the project rather than through agvtool, since
-  # there is no project.yml/xcodegen to regenerate from — project.pbxproj is
-  # the only source of truth for the build settings.
+  # project.yml is the source of truth once xcodegen is in the loop — editing
+  # project.pbxproj directly would get silently reverted the next time
+  # someone runs `xcodegen generate` for an unrelated structural change.
   BUILD_NUMBER="$(git rev-list --count HEAD)"
+  command -v xcodegen >/dev/null || fail "xcodegen not found — brew install xcodegen"
   /usr/bin/sed -i '' \
-    -e "s/^\([[:space:]]*\)MARKETING_VERSION = .*;$/\1MARKETING_VERSION = $VERSION;/" \
-    -e "s/^\([[:space:]]*\)CURRENT_PROJECT_VERSION = .*;$/\1CURRENT_PROJECT_VERSION = $BUILD_NUMBER;/" \
-    Patchly.xcodeproj/project.pbxproj
+    -e "s/^\([[:space:]]*\)MARKETING_VERSION: .*$/\1MARKETING_VERSION: \"$VERSION\"/" \
+    -e "s/^\([[:space:]]*\)CURRENT_PROJECT_VERSION: .*$/\1CURRENT_PROJECT_VERSION: \"$BUILD_NUMBER\"/" \
+    project.yml
+  xcodegen generate --quiet
 
   # Every configuration must agree, or Debug and Release disagree about what
   # version is running.
@@ -172,7 +174,7 @@ fi
 # ----------------------------------------------------------------- publish
 
 step "Committing and tagging"
-git add Patchly.xcodeproj/project.pbxproj
+git add project.yml Patchly.xcodeproj/project.pbxproj
 if git diff --cached --quiet; then
   echo "  nothing staged — version already matches"
 else
