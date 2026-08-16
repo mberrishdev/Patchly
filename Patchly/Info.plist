@@ -31,7 +31,7 @@
 	<key>SUFeedURL</key>
 	<string>https://raw.githubusercontent.com/mberrishdev/Patchly/main/appcast.xml</string>
 	<key>SUPublicEDKey</key>
-	<string>REPLACE_WITH_GENERATED_PUBLIC_KEY</string>
+	<string>fJ+7Z3yZBPNXBJd6ogkoh34ZsbMAiawDZbeF5H47M4A=</string>
 	<key>SUEnableAutomaticChecks</key>
 	<true/>
 </dict>
