@@ -15,5 +15,16 @@
     <description>Patchly release updates</description>
     <language>en</language>
     <!-- scripts/release.sh inserts new <item> entries directly below this line, newest first -->
+    <item>
+      <title>Patchly 0.0.4</title>
+      <pubDate>Sun, 16 Aug 2026 21:48:49 +0000</pubDate>
+      <sparkle:version>30</sparkle:version>
+      <sparkle:shortVersionString>0.0.4</sparkle:shortVersionString>
+      <enclosure
+        url="https://github.com/mberrishdev/Patchly/releases/download/v0.0.4/Patchly-0.0.4.dmg"
+        length="2555793"
+        type="application/octet-stream"
+        sparkle:edSignature="F6eXXD9FkvQn0pUO3NyOGr+YmYFZ4dgMtRYg+TzuDjqi2mxnKWzZKPFTWYA7NCh9WIwz89bwQWfcxKnzvZMRAQ==" length="2555793" />
+    </item>
   </channel>
 </rss>
