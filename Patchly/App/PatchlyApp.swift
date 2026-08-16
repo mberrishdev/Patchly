@@ -22,5 +22,9 @@ struct PatchlyApp: App {
             MenuBarLabelView(badgeCount: settings.showsBadgeCount ? appState.badgeCount : 0)
         }
         .menuBarExtraStyle(.window)
+
+        Settings {
+            SettingsView()
+        }
     }
 }

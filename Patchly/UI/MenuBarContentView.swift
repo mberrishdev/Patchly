@@ -33,23 +33,37 @@ struct MenuBarContentView: View {
     }
 
     private var header: some View {
-        HStack {
+        HStack(spacing: 10) {
             VStack(alignment: .leading, spacing: 2) {
-                Text("Patchly").font(.headline)
+                HStack(spacing: 6) {
+                    Text("Patchly").font(.headline)
+                    Text("v\(AppVersion.shortVersion)")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
                 Text(lastRefreshedText).font(.caption).foregroundStyle(.secondary)
             }
             Spacer()
-            Button {
-                appState.refresh()
-            } label: {
-                if appState.isRefreshing {
-                    ProgressView().controlSize(.small)
-                } else {
-                    Image(systemName: "arrow.clockwise")
+            HStack(spacing: 14) {
+                Button {
+                    appState.refresh()
+                } label: {
+                    if appState.isRefreshing {
+                        ProgressView().controlSize(.small)
+                    } else {
+                        Image(systemName: "arrow.clockwise")
+                    }
                 }
+                .buttonStyle(.plain)
+                .disabled(appState.isRefreshing)
+                .help("Refresh")
+
+                SettingsLink {
+                    Image(systemName: "gearshape")
+                }
+                .buttonStyle(.plain)
+                .help("Settings")
             }
-            .buttonStyle(.plain)
-            .disabled(appState.isRefreshing)
         }
         .padding(12)
     }
@@ -84,4 +98,8 @@ struct MenuBarContentView: View {
         formatter.unitsStyle = .abbreviated
         return "Updated \(formatter.localizedString(for: date, relativeTo: Date()))"
     }
+}
+
+#Preview {
+    MenuBarContentView(appState: AppState(settings: AppSettings()))
 }
