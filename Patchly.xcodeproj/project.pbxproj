@@ -1,0 +1,579 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0165DE8969DB98643D1F11C2 /* ExecutableLocator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C1A768A75FE3CB0CBC2C83B /* ExecutableLocator.swift */; };
+		058DDD127313F6FA4DD3C62D /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 478A254F483F853B19D7C33D /* AppState.swift */; };
+		10C4ACEB18AD06541B4EBAB4 /* MacAppStoreChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C5851E156CA1A17CB08040F /* MacAppStoreChecker.swift */; };
+		2B4DD6AAC8DE3CFAE6450268 /* UpdateAggregator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 089920C58FFAC1E76955FA9F /* UpdateAggregator.swift */; };
+		2C298F8195DEAFEBCF46B1B6 /* VersionComparatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBBB13B040B60426034E3306 /* VersionComparatorTests.swift */; };
+		2F74EE79ACD67A2648A3CE2F /* SparkleAppcastParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F6C5F92731D33BC7E452D7A /* SparkleAppcastParser.swift */; };
+		38F01061E85EB39D313903B1 /* ScannedApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB24B99BFC09F0AA925C472E /* ScannedApp.swift */; };
+		3CF72A49788B4F79F71ADE3B /* SparkleAppcastParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0839D6494DEC9F6C449ECD9A /* SparkleAppcastParserTests.swift */; };
+		5662FB282A805842169413E3 /* MenuBarContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9030A1FBEE66DE4AB486E5D7 /* MenuBarContentView.swift */; };
+		57D79764C19C6E7E76235572 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9FA060E772F1F78705E61189 /* Assets.xcassets */; };
+		6AD0DE10BE173DA31DB695CF /* PatchlyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C5CF24FBCA4671C54FD7452 /* PatchlyApp.swift */; };
+		765A63C58CD2B12D07EA28CD /* HomebrewCaskCheckerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28B2EFAB29773DA1D8EA9AB5 /* HomebrewCaskCheckerTests.swift */; };
+		7C7D5F30DF1957E7FF83A80C /* VersionComparator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45E9C05B0991D5D85B4EC4E3 /* VersionComparator.swift */; };
+		8755C357A1975FE254CDADBB /* CacheStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 318A19726094A6682B93E177 /* CacheStore.swift */; };
+		8B776813435C6BF51050DD4E /* ApplicationScannerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AEEB32235E435898E2DF0DA /* ApplicationScannerTests.swift */; };
+		8CAC3E47A6002FD3FB22CE2B /* AppRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEB75D6A3842108410237F1 /* AppRowView.swift */; };
+		954A506E96234FAA8F0AA76C /* SourceBadgeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76B553C0B220346509CBD25C /* SourceBadgeView.swift */; };
+		AEBE5F3CC0718B53675F1AA4 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF50983CE36CBE57203F1405 /* AppSettings.swift */; };
+		AFE19BE3A7D2D0BA7C856711 /* ApplicationScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3247E12A55E04A500DBDD008 /* ApplicationScanner.swift */; };
+		BCDEEE537A66606C12F7152C /* UpdateSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2D058A1667501D51294FF80 /* UpdateSource.swift */; };
+		C241F883CB19224ADE9CCF36 /* MenuBarLabelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 104D872DDEB98BB2E66049EF /* MenuBarLabelView.swift */; };
+		C42C8BDC6BB6C71AC9C11339 /* DiscoveredApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7ADF49836A71C2D4835DB83 /* DiscoveredApp.swift */; };
+		C4BB916DEF8F1D9E247F129C /* HomebrewCaskChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F1FEEEDCD6959330CA39F8D /* HomebrewCaskChecker.swift */; };
+		CFF5AA9B7D24F726AB12B082 /* SparkleFeedChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4A4D6B5A6353473001D01F2 /* SparkleFeedChecker.swift */; };
+		F3C9E197390A3B9436571ECE /* ProcessRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 615E4AC58EA9440DEB740F79 /* ProcessRunner.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		108485CA4DAC2492CE73770E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 412982F0B06BECEA8469CFAD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B35AEBC02958DD005106D996;
+			remoteInfo = Patchly;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		0839D6494DEC9F6C449ECD9A /* SparkleAppcastParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SparkleAppcastParserTests.swift; sourceTree = "<group>"; };
+		089920C58FFAC1E76955FA9F /* UpdateAggregator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateAggregator.swift; sourceTree = "<group>"; };
+		104D872DDEB98BB2E66049EF /* MenuBarLabelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarLabelView.swift; sourceTree = "<group>"; };
+		28B2EFAB29773DA1D8EA9AB5 /* HomebrewCaskCheckerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomebrewCaskCheckerTests.swift; sourceTree = "<group>"; };
+		2F1FEEEDCD6959330CA39F8D /* HomebrewCaskChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomebrewCaskChecker.swift; sourceTree = "<group>"; };
+		318A19726094A6682B93E177 /* CacheStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CacheStore.swift; sourceTree = "<group>"; };
+		3247E12A55E04A500DBDD008 /* ApplicationScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationScanner.swift; sourceTree = "<group>"; };
+		3AEEB32235E435898E2DF0DA /* ApplicationScannerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationScannerTests.swift; sourceTree = "<group>"; };
+		3EE862423CB3E367814762FF /* Patchly.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Patchly.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		45E9C05B0991D5D85B4EC4E3 /* VersionComparator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VersionComparator.swift; sourceTree = "<group>"; };
+		478A254F483F853B19D7C33D /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		4C5851E156CA1A17CB08040F /* MacAppStoreChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacAppStoreChecker.swift; sourceTree = "<group>"; };
+		615E4AC58EA9440DEB740F79 /* ProcessRunner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessRunner.swift; sourceTree = "<group>"; };
+		6C1A768A75FE3CB0CBC2C83B /* ExecutableLocator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExecutableLocator.swift; sourceTree = "<group>"; };
+		76B553C0B220346509CBD25C /* SourceBadgeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourceBadgeView.swift; sourceTree = "<group>"; };
+		7F6C5F92731D33BC7E452D7A /* SparkleAppcastParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SparkleAppcastParser.swift; sourceTree = "<group>"; };
+		9030A1FBEE66DE4AB486E5D7 /* MenuBarContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarContentView.swift; sourceTree = "<group>"; };
+		9C5CF24FBCA4671C54FD7452 /* PatchlyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PatchlyApp.swift; sourceTree = "<group>"; };
+		9EEB75D6A3842108410237F1 /* AppRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRowView.swift; sourceTree = "<group>"; };
+		9FA060E772F1F78705E61189 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		BBBB13B040B60426034E3306 /* VersionComparatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VersionComparatorTests.swift; sourceTree = "<group>"; };
+		D2D058A1667501D51294FF80 /* UpdateSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateSource.swift; sourceTree = "<group>"; };
+		D4A4D6B5A6353473001D01F2 /* SparkleFeedChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SparkleFeedChecker.swift; sourceTree = "<group>"; };
+		DF50983CE36CBE57203F1405 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
+		E338D33905EBB62270483791 /* PatchlyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PatchlyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F7ADF49836A71C2D4835DB83 /* DiscoveredApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscoveredApp.swift; sourceTree = "<group>"; };
+		FB24B99BFC09F0AA925C472E /* ScannedApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScannedApp.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		19408DCF9514C360EC86BC12 /* Persistence */ = {
+			isa = PBXGroup;
+			children = (
+				318A19726094A6682B93E177 /* CacheStore.swift */,
+			);
+			path = Persistence;
+			sourceTree = "<group>";
+		};
+		41689D9A7DC816E9FDEFB9E7 /* UpdateSources */ = {
+			isa = PBXGroup;
+			children = (
+				2F1FEEEDCD6959330CA39F8D /* HomebrewCaskChecker.swift */,
+				4C5851E156CA1A17CB08040F /* MacAppStoreChecker.swift */,
+				D4A4D6B5A6353473001D01F2 /* SparkleFeedChecker.swift */,
+				D2D058A1667501D51294FF80 /* UpdateSource.swift */,
+			);
+			path = UpdateSources;
+			sourceTree = "<group>";
+		};
+		49D6E8CEA2DEB47843C1EEC4 /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				9EEB75D6A3842108410237F1 /* AppRowView.swift */,
+				9030A1FBEE66DE4AB486E5D7 /* MenuBarContentView.swift */,
+				104D872DDEB98BB2E66049EF /* MenuBarLabelView.swift */,
+				76B553C0B220346509CBD25C /* SourceBadgeView.swift */,
+			);
+			path = UI;
+			sourceTree = "<group>";
+		};
+		4D6DA754DB4ABF880FB3019D /* Support */ = {
+			isa = PBXGroup;
+			children = (
+				6C1A768A75FE3CB0CBC2C83B /* ExecutableLocator.swift */,
+				615E4AC58EA9440DEB740F79 /* ProcessRunner.swift */,
+				7F6C5F92731D33BC7E452D7A /* SparkleAppcastParser.swift */,
+				45E9C05B0991D5D85B4EC4E3 /* VersionComparator.swift */,
+			);
+			path = Support;
+			sourceTree = "<group>";
+		};
+		A5EB2F25A0BACE3349E64D32 /* PatchlyTests */ = {
+			isa = PBXGroup;
+			children = (
+				3AEEB32235E435898E2DF0DA /* ApplicationScannerTests.swift */,
+				28B2EFAB29773DA1D8EA9AB5 /* HomebrewCaskCheckerTests.swift */,
+				0839D6494DEC9F6C449ECD9A /* SparkleAppcastParserTests.swift */,
+				BBBB13B040B60426034E3306 /* VersionComparatorTests.swift */,
+			);
+			path = PatchlyTests;
+			sourceTree = "<group>";
+		};
+		A87F7A44CDA5663FA3779303 /* Scanner */ = {
+			isa = PBXGroup;
+			children = (
+				3247E12A55E04A500DBDD008 /* ApplicationScanner.swift */,
+				089920C58FFAC1E76955FA9F /* UpdateAggregator.swift */,
+			);
+			path = Scanner;
+			sourceTree = "<group>";
+		};
+		A8FBB42C3D2A056FA604188B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				3EE862423CB3E367814762FF /* Patchly.app */,
+				E338D33905EBB62270483791 /* PatchlyTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		D11999899D1AFB1D753DCD43 /* State */ = {
+			isa = PBXGroup;
+			children = (
+				478A254F483F853B19D7C33D /* AppState.swift */,
+			);
+			path = State;
+			sourceTree = "<group>";
+		};
+		DA66C4F8DA48E59F793915CE /* Patchly */ = {
+			isa = PBXGroup;
+			children = (
+				9FA060E772F1F78705E61189 /* Assets.xcassets */,
+				DBC62EBB0D85645A38F7A634 /* App */,
+				E041C146CE7BF91A81B2D79F /* Models */,
+				19408DCF9514C360EC86BC12 /* Persistence */,
+				A87F7A44CDA5663FA3779303 /* Scanner */,
+				D11999899D1AFB1D753DCD43 /* State */,
+				4D6DA754DB4ABF880FB3019D /* Support */,
+				49D6E8CEA2DEB47843C1EEC4 /* UI */,
+				41689D9A7DC816E9FDEFB9E7 /* UpdateSources */,
+			);
+			path = Patchly;
+			sourceTree = "<group>";
+		};
+		DBC62EBB0D85645A38F7A634 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				DF50983CE36CBE57203F1405 /* AppSettings.swift */,
+				9C5CF24FBCA4671C54FD7452 /* PatchlyApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		E041C146CE7BF91A81B2D79F /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				F7ADF49836A71C2D4835DB83 /* DiscoveredApp.swift */,
+				FB24B99BFC09F0AA925C472E /* ScannedApp.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		F9F080856BE730A39176E22E = {
+			isa = PBXGroup;
+			children = (
+				DA66C4F8DA48E59F793915CE /* Patchly */,
+				A5EB2F25A0BACE3349E64D32 /* PatchlyTests */,
+				A8FBB42C3D2A056FA604188B /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		2EBA42A7ABCB700468C6C046 /* PatchlyTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 815B1917648C7361368C1921 /* Build configuration list for PBXNativeTarget "PatchlyTests" */;
+			buildPhases = (
+				CE15886E6353469A98E4D9A5 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C55FF852E12B12F1BB4353EE /* PBXTargetDependency */,
+			);
+			name = PatchlyTests;
+			packageProductDependencies = (
+			);
+			productName = PatchlyTests;
+			productReference = E338D33905EBB62270483791 /* PatchlyTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		B35AEBC02958DD005106D996 /* Patchly */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C95624C2F1FA153B05431A40 /* Build configuration list for PBXNativeTarget "Patchly" */;
+			buildPhases = (
+				23E4AB262AA6AD8FD6C72E88 /* Sources */,
+				52FA610C7750CF0418065C32 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Patchly;
+			packageProductDependencies = (
+			);
+			productName = Patchly;
+			productReference = 3EE862423CB3E367814762FF /* Patchly.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		412982F0B06BECEA8469CFAD /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					2EBA42A7ABCB700468C6C046 = {
+						ProvisioningStyle = Automatic;
+					};
+					B35AEBC02958DD005106D996 = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 8FFA1C78C5EA0ADC3835D2E9 /* Build configuration list for PBXProject "Patchly" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = F9F080856BE730A39176E22E;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = A8FBB42C3D2A056FA604188B /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				B35AEBC02958DD005106D996 /* Patchly */,
+				2EBA42A7ABCB700468C6C046 /* PatchlyTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		52FA610C7750CF0418065C32 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				57D79764C19C6E7E76235572 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		23E4AB262AA6AD8FD6C72E88 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8CAC3E47A6002FD3FB22CE2B /* AppRowView.swift in Sources */,
+				AEBE5F3CC0718B53675F1AA4 /* AppSettings.swift in Sources */,
+				058DDD127313F6FA4DD3C62D /* AppState.swift in Sources */,
+				AFE19BE3A7D2D0BA7C856711 /* ApplicationScanner.swift in Sources */,
+				8755C357A1975FE254CDADBB /* CacheStore.swift in Sources */,
+				C42C8BDC6BB6C71AC9C11339 /* DiscoveredApp.swift in Sources */,
+				0165DE8969DB98643D1F11C2 /* ExecutableLocator.swift in Sources */,
+				C4BB916DEF8F1D9E247F129C /* HomebrewCaskChecker.swift in Sources */,
+				10C4ACEB18AD06541B4EBAB4 /* MacAppStoreChecker.swift in Sources */,
+				5662FB282A805842169413E3 /* MenuBarContentView.swift in Sources */,
+				C241F883CB19224ADE9CCF36 /* MenuBarLabelView.swift in Sources */,
+				6AD0DE10BE173DA31DB695CF /* PatchlyApp.swift in Sources */,
+				F3C9E197390A3B9436571ECE /* ProcessRunner.swift in Sources */,
+				38F01061E85EB39D313903B1 /* ScannedApp.swift in Sources */,
+				954A506E96234FAA8F0AA76C /* SourceBadgeView.swift in Sources */,
+				2F74EE79ACD67A2648A3CE2F /* SparkleAppcastParser.swift in Sources */,
+				CFF5AA9B7D24F726AB12B082 /* SparkleFeedChecker.swift in Sources */,
+				2B4DD6AAC8DE3CFAE6450268 /* UpdateAggregator.swift in Sources */,
+				BCDEEE537A66606C12F7152C /* UpdateSource.swift in Sources */,
+				7C7D5F30DF1957E7FF83A80C /* VersionComparator.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CE15886E6353469A98E4D9A5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8B776813435C6BF51050DD4E /* ApplicationScannerTests.swift in Sources */,
+				765A63C58CD2B12D07EA28CD /* HomebrewCaskCheckerTests.swift in Sources */,
+				3CF72A49788B4F79F71ADE3B /* SparkleAppcastParserTests.swift in Sources */,
+				2C298F8195DEAFEBCF46B1B6 /* VersionComparatorTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		C55FF852E12B12F1BB4353EE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B35AEBC02958DD005106D996 /* Patchly */;
+			targetProxy = 108485CA4DAC2492CE73770E /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		079A16BBEE34F7A07DE95A22 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = arm64;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 0.1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		17818C8B73E11F017993C5C5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Patchly/Patchly.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Patchly/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mberrish.Patchly;
+				PRODUCT_NAME = Patchly;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		229B927D12FDED3BA1D427CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Patchly.app/Contents/MacOS/Patchly";
+			};
+			name = Debug;
+		};
+		7C787105C2F763B30457D66B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Patchly/Patchly.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Patchly/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mberrish.Patchly;
+				PRODUCT_NAME = Patchly;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		C12D5B024D4FF33A8FBC97C2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = arm64;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 0.1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		C7653D281B18FD69A345EB71 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Patchly.app/Contents/MacOS/Patchly";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		815B1917648C7361368C1921 /* Build configuration list for PBXNativeTarget "PatchlyTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				229B927D12FDED3BA1D427CD /* Debug */,
+				C7653D281B18FD69A345EB71 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		8FFA1C78C5EA0ADC3835D2E9 /* Build configuration list for PBXProject "Patchly" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				079A16BBEE34F7A07DE95A22 /* Debug */,
+				C12D5B024D4FF33A8FBC97C2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		C95624C2F1FA153B05431A40 /* Build configuration list for PBXNativeTarget "Patchly" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				17818C8B73E11F017993C5C5 /* Debug */,
+				7C787105C2F763B30457D66B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 412982F0B06BECEA8469CFAD /* Project object */;
+}
