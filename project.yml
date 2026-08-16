@@ -1,0 +1,66 @@
+name: Patchly
+
+options:
+  developmentLanguage: en
+  deploymentTarget:
+    macOS: "26.0"
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    SWIFT_STRICT_CONCURRENCY: complete
+    DEAD_CODE_STRIPPING: YES
+    ONLY_ACTIVE_ARCH: NO
+    ARCHS: arm64
+    # Bumped by scripts/release.sh, which edits this file and re-runs
+    # `xcodegen generate` — don't hand-edit project.pbxproj's version
+    # directly, it gets overwritten on the next regenerate.
+    MARKETING_VERSION: "0.0.2"
+    CURRENT_PROJECT_VERSION: "16"
+
+targets:
+  Patchly:
+    type: application
+    platform: macOS
+    deploymentTarget: "26.0"
+    sources:
+      - path: Patchly
+        excludes:
+          - Info.plist
+          - Patchly.entitlements
+    settings:
+      base:
+        PRODUCT_NAME: Patchly
+        PRODUCT_BUNDLE_IDENTIFIER: com.mberrish.Patchly
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: Patchly/Info.plist
+        CODE_SIGN_ENTITLEMENTS: Patchly/Patchly.entitlements
+        ENABLE_APP_SANDBOX: NO
+        ENABLE_HARDENED_RUNTIME: YES
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        CODE_SIGN_STYLE: Automatic
+
+  PatchlyTests:
+    type: bundle.unit-test
+    platform: macOS
+    deploymentTarget: "26.0"
+    sources:
+      - path: PatchlyTests
+    dependencies:
+      - target: Patchly
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        CODE_SIGN_STYLE: Automatic
+
+schemes:
+  Patchly:
+    build:
+      targets:
+        Patchly: all
+        PatchlyTests: [test]
+    test:
+      targets:
+        - PatchlyTests
+    run:
+      config: Debug
