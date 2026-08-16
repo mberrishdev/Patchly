@@ -47,8 +47,17 @@ struct HomebrewCaskChecker: UpdateSource {
         for cask in casks {
             for artifactFilename in cask.artifactAppFilenames {
                 guard let bundlePath = pathByFilename[artifactFilename] else { continue }
-                if cask.outdated, let latest = cask.version {
-                    results[bundlePath] = UpdateCheckResult(status: .updateAvailable(latestVersion: latest))
+                if cask.outdated {
+                    if let latest = cask.version {
+                        results[bundlePath] = UpdateCheckResult(status: .updateAvailable(latestVersion: latest))
+                    } else {
+                        // Homebrew says it's outdated but didn't report what the
+                        // latest version is — that's a failed check, never "up
+                        // to date" (an outdated cask can't resolve to that).
+                        results[bundlePath] = UpdateCheckResult(
+                            status: .checkFailed(reason: "\(cask.token) is outdated but brew reported no version")
+                        )
+                    }
                 } else {
                     results[bundlePath] = UpdateCheckResult(status: .upToDate)
                 }

@@ -84,4 +84,38 @@ final class HomebrewCaskCheckerTests: XCTestCase {
         let binaryOnly = casks.first { $0.token == "binary-only-cask" }
         XCTAssertEqual(binaryOnly?.artifactAppFilenames, [])
     }
+
+    func testOutdatedCaskWithNoReportedVersionIsCheckFailedNotUpToDate() throws {
+        let json = """
+        {
+          "formulae": [],
+          "casks": [
+            {
+              "token": "partial-app",
+              "version": null,
+              "installed": "1.0.0",
+              "outdated": true,
+              "artifacts": [
+                { "app": ["Partial.app"] }
+              ]
+            }
+          ]
+        }
+        """
+        let casks = try HomebrewCaskChecker.parseCasks(from: json)
+        let apps = [
+            DiscoveredApp(
+                name: "Partial",
+                bundlePath: "/Applications/Partial.app",
+                bundleIdentifier: nil,
+                installedVersion: "1.0.0",
+                hasMacAppStoreReceipt: false,
+                sparkleFeedURL: nil
+            )
+        ]
+        let results = HomebrewCaskChecker.matchResults(casks: casks, apps: apps)
+        guard case .checkFailed = results["/Applications/Partial.app"]?.status else {
+            return XCTFail("An outdated cask with no version must never resolve to upToDate")
+        }
+    }
 }

@@ -55,12 +55,41 @@ final class AppState: ObservableObject {
         }
     }
 
-    /// Runs `brew install mas`, then re-checks Mac App Store Source apps.
-    /// See CONTEXT.md ("Unknown — mas Missing").
+    /// Runs `brew install mas`, then re-checks Mac App Store Source apps only —
+    /// not a full Refresh. See CONTEXT.md ("Unknown — mas Missing").
     func installMasCLI() async {
         guard let brewPath = ExecutableLocator.locateBrew() else { return }
         _ = try? await ProcessRunner().run(executablePath: brewPath, arguments: ["install", "mas"], timeout: 180)
-        refresh()
+        await recheckMacAppStoreApps()
+    }
+
+    private func recheckMacAppStoreApps() async {
+        let targets = scannedApps.filter { $0.source == .macAppStore }
+        guard !targets.isEmpty else { return }
+
+        let discovered = targets.map { app in
+            DiscoveredApp(
+                name: app.name,
+                bundlePath: app.bundlePath,
+                bundleIdentifier: app.bundleIdentifier,
+                installedVersion: app.installedVersion,
+                hasMacAppStoreReceipt: true,
+                sparkleFeedURL: nil
+            )
+        }
+
+        let results = await aggregator.recheckMacAppStore(for: discovered)
+        guard !results.isEmpty else { return }
+
+        let now = Date()
+        for index in scannedApps.indices {
+            guard scannedApps[index].source == .macAppStore,
+                  let result = results[scannedApps[index].bundlePath]
+            else { continue }
+            scannedApps[index].updateStatus = result.status
+            scannedApps[index].lastCheckedAt = now
+        }
+        cacheStore.save(scannedApps)
     }
 
     private func performRefresh() async {

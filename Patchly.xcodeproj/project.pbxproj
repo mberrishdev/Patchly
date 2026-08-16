@@ -19,6 +19,7 @@
 		57D79764C19C6E7E76235572 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9FA060E772F1F78705E61189 /* Assets.xcassets */; };
 		6AD0DE10BE173DA31DB695CF /* PatchlyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C5CF24FBCA4671C54FD7452 /* PatchlyApp.swift */; };
 		765A63C58CD2B12D07EA28CD /* HomebrewCaskCheckerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28B2EFAB29773DA1D8EA9AB5 /* HomebrewCaskCheckerTests.swift */; };
+		E1A2B3C4D5E60718293A4B5C /* MacAppStoreCheckerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E1D2C3B4A5968778695A4B /* MacAppStoreCheckerTests.swift */; };
 		7C7D5F30DF1957E7FF83A80C /* VersionComparator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45E9C05B0991D5D85B4EC4E3 /* VersionComparator.swift */; };
 		8755C357A1975FE254CDADBB /* CacheStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 318A19726094A6682B93E177 /* CacheStore.swift */; };
 		8B776813435C6BF51050DD4E /* ApplicationScannerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AEEB32235E435898E2DF0DA /* ApplicationScannerTests.swift */; };
@@ -49,6 +50,7 @@
 		089920C58FFAC1E76955FA9F /* UpdateAggregator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateAggregator.swift; sourceTree = "<group>"; };
 		104D872DDEB98BB2E66049EF /* MenuBarLabelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarLabelView.swift; sourceTree = "<group>"; };
 		28B2EFAB29773DA1D8EA9AB5 /* HomebrewCaskCheckerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomebrewCaskCheckerTests.swift; sourceTree = "<group>"; };
+		F0E1D2C3B4A5968778695A4B /* MacAppStoreCheckerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacAppStoreCheckerTests.swift; sourceTree = "<group>"; };
 		2F1FEEEDCD6959330CA39F8D /* HomebrewCaskChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomebrewCaskChecker.swift; sourceTree = "<group>"; };
 		318A19726094A6682B93E177 /* CacheStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CacheStore.swift; sourceTree = "<group>"; };
 		3247E12A55E04A500DBDD008 /* ApplicationScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationScanner.swift; sourceTree = "<group>"; };
@@ -121,6 +123,7 @@
 			children = (
 				3AEEB32235E435898E2DF0DA /* ApplicationScannerTests.swift */,
 				28B2EFAB29773DA1D8EA9AB5 /* HomebrewCaskCheckerTests.swift */,
+				F0E1D2C3B4A5968778695A4B /* MacAppStoreCheckerTests.swift */,
 				0839D6494DEC9F6C449ECD9A /* SparkleAppcastParserTests.swift */,
 				BBBB13B040B60426034E3306 /* VersionComparatorTests.swift */,
 			);
@@ -242,7 +245,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 1430;
+				LastUpgradeCheck = 2660;
 				TargetAttributes = {
 					2EBA42A7ABCB700468C6C046 = {
 						ProvisioningStyle = Automatic;
@@ -317,6 +320,7 @@
 			files = (
 				8B776813435C6BF51050DD4E /* ApplicationScannerTests.swift in Sources */,
 				765A63C58CD2B12D07EA28CD /* HomebrewCaskCheckerTests.swift in Sources */,
+				E1A2B3C4D5E60718293A4B5C /* MacAppStoreCheckerTests.swift in Sources */,
 				3CF72A49788B4F79F71ADE3B /* SparkleAppcastParserTests.swift in Sources */,
 				2C298F8195DEAFEBCF46B1B6 /* VersionComparatorTests.swift in Sources */,
 			);
@@ -337,7 +341,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = arm64;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -373,6 +376,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -391,9 +395,10 @@
 				MARKETING_VERSION = 0.0.1;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				ONLY_ACTIVE_ARCH = NO;
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_STRICT_CONCURRENCY = complete;
@@ -467,7 +472,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = arm64;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -503,6 +507,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -518,6 +523,7 @@
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_STRICT_CONCURRENCY = complete;

@@ -56,7 +56,8 @@ _Avoid_: Notification count, alert count
 - A Scanned App matching none of the three sources gets Unknown — No Source and is never treated as an error
 - A Mac App Store Source app is checked with `mas outdated`; if `mas` is not installed, every Mac App Store Source app gets Unknown — mas Missing instead of blocking the rest of the Refresh
 - Unknown — mas Missing apps show an inline action offering to run `brew install mas`; completing that action triggers an immediate re-check of Mac App Store Source apps only
-- A Homebrew Cask Source app is checked against `brew outdated --cask --json=v2`; a cask absent from that output is Up to Date
+- A Homebrew Cask Source app is checked via a single `brew info --cask --json=v2 --installed` call (this one call carries the installed version, latest version, outdated flag, and artifact filenames needed for matching, so no second call is needed); a cask not flagged `outdated` is Up to Date
+- A cask flagged `outdated` with no reported latest version is Check Failed, never Up to Date — an outdated cask can never resolve to up to date
 - A Sparkle Feed Source app's appcast is fetched and parsed independently per app, concurrently, with a bounded number in flight at once; one app's network failure or malformed feed never blocks another app's check
 - A Sparkle Feed Source app whose feed can't be fetched or parsed gets Check Failed, not Unknown
 - Version comparison for Homebrew and Sparkle sources uses dot-separated numeric comparison, never string equality, since "10" must sort after "9"

@@ -20,6 +20,13 @@ actor UpdateAggregator {
         self.sparkleFeedChecker = sparkleFeedChecker
     }
 
+    /// Re-runs only the Mac App Store Source check — used after installing
+    /// `mas`, which per CONTEXT.md should only affect Mac App Store Source
+    /// apps, not trigger a full Refresh.
+    func recheckMacAppStore(for apps: [DiscoveredApp]) async -> [String: UpdateCheckResult] {
+        await macAppStoreChecker.checkUpdates(for: apps)
+    }
+
     func refresh() async -> [ScannedApp] {
         let discovered = await scanner.scanInstalledApps()
         return await Self.mergeResults(

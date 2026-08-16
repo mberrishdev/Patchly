@@ -24,9 +24,16 @@ struct MacAppStoreChecker: UpdateSource {
 
         do {
             let result = try await processRunner.run(executablePath: masPath, arguments: ["outdated"], timeout: 20)
-            guard result.succeeded || !result.standardOutput.isEmpty else {
+            // A non-zero exit is always a failed check, even if `mas` printed
+            // something to stdout (a warning, a partial line, a sign-in
+            // prompt) — that text isn't a valid `outdated` listing and must
+            // not be silently parsed into "nothing is outdated."
+            guard result.succeeded else {
+                let reason = result.standardError.isEmpty
+                    ? "mas outdated exited \(result.terminationStatus)"
+                    : result.standardError
                 return masApps.reduce(into: [:]) { results, app in
-                    results[app.bundlePath] = UpdateCheckResult(status: .checkFailed(reason: "mas outdated failed"))
+                    results[app.bundlePath] = UpdateCheckResult(status: .checkFailed(reason: reason))
                 }
             }
             let outdated = Self.parseOutdated(from: result.standardOutput)
