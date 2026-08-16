@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Patchly's own release feed, consumed by the Sparkle framework for
+  self-updates. Distinct from a Sparkle Feed Source appcast (which Patchly
+  parses read-only, with Foundation's XMLParser, for OTHER apps) — this one
+  Sparkle itself fetches and verifies. See CONTEXT.md.
+
+  scripts/release.sh prepends a new <item> here on every release cut; do not
+  hand-edit except to fix a mistake in the most recent entry.
+-->
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+  <channel>
+    <title>Patchly</title>
+    <link>https://raw.githubusercontent.com/mberrishdev/Patchly/main/appcast.xml</link>
+    <description>Patchly release updates</description>
+    <language>en</language>
+    <!-- scripts/release.sh inserts new <item> entries directly below this line, newest first -->
+  </channel>
+</rss>

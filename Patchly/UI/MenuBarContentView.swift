@@ -3,6 +3,7 @@ import SwiftUI
 
 struct MenuBarContentView: View {
     @ObservedObject var appState: AppState
+    @ObservedObject var updater: AppUpdater
     @Environment(\.openSettings) private var openSettings
     @Environment(\.dismiss) private var dismiss
 
@@ -46,33 +47,18 @@ struct MenuBarContentView: View {
                 Text(lastRefreshedText).font(.caption).foregroundStyle(.secondary)
             }
             Spacer()
-            HStack(spacing: 14) {
-                Button {
-                    appState.refresh()
-                } label: {
-                    if appState.isRefreshing {
-                        ProgressView().controlSize(.small)
-                    } else {
-                        Image(systemName: "arrow.clockwise")
-                    }
+            Button {
+                appState.refresh()
+            } label: {
+                if appState.isRefreshing {
+                    ProgressView().controlSize(.small)
+                } else {
+                    Image(systemName: "arrow.clockwise")
                 }
-                .buttonStyle(.plain)
-                .disabled(appState.isRefreshing)
-                .help("Refresh")
-
-                Button {
-                    dismiss()
-                    // LSUIElement apps never activate themselves, so opening
-                    // (or refocusing) the Settings window would otherwise
-                    // land behind whatever app currently has focus.
-                    NSApp.activate(ignoringOtherApps: true)
-                    openSettings()
-                } label: {
-                    Image(systemName: "gearshape")
-                }
-                .buttonStyle(.plain)
-                .help("Settings")
             }
+            .buttonStyle(.plain)
+            .disabled(appState.isRefreshing)
+            .help("Refresh")
         }
         .padding(12)
     }
@@ -85,14 +71,50 @@ struct MenuBarContentView: View {
     }
 
     private var footer: some View {
-        HStack {
-            Spacer()
-            Button("Quit Patchly") {
+        VStack(spacing: 2) {
+            menuRow(title: "Check for Updates…", shortcut: nil) {
+                dismiss()
+                // LSUIElement apps never activate themselves, so Sparkle's
+                // update alert would otherwise land behind whatever app
+                // currently has focus.
+                NSApp.activate(ignoringOtherApps: true)
+                updater.checkForUpdates()
+            }
+            .disabled(!updater.canCheckForUpdates)
+
+            menuRow(title: "Settings…", shortcut: "⌘,") {
+                dismiss()
+                // Same reasoning as above — see the settings-gear fix this
+                // replaced.
+                NSApp.activate(ignoringOtherApps: true)
+                openSettings()
+            }
+            .keyboardShortcut(",", modifiers: .command)
+
+            Divider()
+
+            menuRow(title: "Quit Patchly", shortcut: "⌘Q") {
                 NSApplication.shared.terminate(nil)
             }
-            .buttonStyle(.plain)
+            .keyboardShortcut("q", modifiers: .command)
         }
-        .padding(12)
+        .padding(.vertical, 6)
+    }
+
+    private func menuRow(title: String, shortcut: String?, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack {
+                Text(title)
+                Spacer()
+                if let shortcut {
+                    Text(shortcut).foregroundStyle(.secondary)
+                }
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 5)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 
     private var listHeight: CGFloat {
@@ -110,5 +132,5 @@ struct MenuBarContentView: View {
 }
 
 #Preview {
-    MenuBarContentView(appState: AppState(settings: AppSettings()))
+    MenuBarContentView(appState: AppState(settings: AppSettings()), updater: AppUpdater())
 }

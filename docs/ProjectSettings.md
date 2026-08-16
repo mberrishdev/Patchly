@@ -14,6 +14,9 @@ Scaffolding values for `Patchly.xcodeproj`, generated once via `xcodegen` from `
 - `LSUIElement` = true (menu-bar-only, no Dock icon)
 - `NSPrincipalClass` = `NSApplication`
 - No usage-description keys needed — Patchly never touches microphone, camera, contacts, or any TCC-gated resource; reading other apps' `Info.plist` and shelling out to `brew`/`mas` need no Info.plist permission strings
+- `SUFeedURL` = `https://raw.githubusercontent.com/mberrishdev/Patchly/main/appcast.xml` — Patchly's own signed release feed, fetched by the linked Sparkle framework (see `appcast.xml` at the repo root)
+- `SUPublicEDKey` = the EdDSA public key from `scripts/generate-sparkle-keys.sh`; must be valid base64 or Sparkle refuses to start ("The updater failed to start")
+- `SUEnableAutomaticChecks` = true (default; user-toggleable in Settings via `AppUpdater.automaticallyChecksForUpdates`)
 
 ## Entitlements (`Patchly.entitlements`)
 
