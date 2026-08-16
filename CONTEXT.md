@@ -11,7 +11,7 @@ The first implementation milestone reports update status only; it does not insta
 - Patchly builds from a committed Xcode project (`Patchly.xcodeproj`) without Tuist or any project generation
 - SwiftUI is the entire application shell: a single `MenuBarExtra` scene renders both the status item and its dropdown content; there is no AppKit shell
 - Patchly uses Swift 6 with complete strict concurrency
-- Patchly has zero third-party dependencies: Homebrew and mas are invoked as external command-line tools via `Process`, never linked; Sparkle appcasts belonging to *other* apps are parsed with Foundation's `XMLParser`, and Patchly does not use the Sparkle framework itself since it does not self-update in this milestone
+- Patchly has one third-party dependency, the Sparkle framework, used only so Patchly can self-update; Homebrew and mas are still invoked as external command-line tools via `Process`, never linked, and Sparkle appcasts belonging to *other* apps are still parsed with Foundation's `XMLParser` by the read-only Sparkle Feed Source — Patchly's own appcast is the one thing the linked Sparkle framework itself fetches and verifies
 
 ## Language
 
@@ -69,6 +69,7 @@ _Avoid_: Notification count, alert count
 - The Badge Count reflects only Update Available apps; Unknown and Check Failed states never contribute to it
 - Clicking a Scanned App row reveals it in Finder; Patchly does not install, launch an updater, or run `brew upgrade`/`mas upgrade` on the user's behalf in this milestone
 - Patchly makes no changes to any other app's files; every external command it runs is read-only except the explicit, user-initiated `brew install mas` action
+- Patchly self-updates via Sparkle, checked separately from the Refresh cycle: automatically (user-configurable in Settings) and on manual request from the menu bar dropdown or Settings; this never affects Scanned Apps or the Cache Snapshot
 
 ## Flagged ambiguities
 

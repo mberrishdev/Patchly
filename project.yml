@@ -5,6 +5,11 @@ options:
   deploymentTarget:
     macOS: "26.0"
 
+packages:
+  Sparkle:
+    url: https://github.com/sparkle-project/Sparkle
+    from: 2.6.0
+
 settings:
   base:
     SWIFT_VERSION: "6.0"
@@ -39,6 +44,8 @@ targets:
         ENABLE_HARDENED_RUNTIME: YES
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         CODE_SIGN_STYLE: Automatic
+    dependencies:
+      - package: Sparkle
 
   PatchlyTests:
     type: bundle.unit-test

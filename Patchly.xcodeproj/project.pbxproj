@@ -10,9 +10,12 @@
 		0165DE8969DB98643D1F11C2 /* ExecutableLocator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C1A768A75FE3CB0CBC2C83B /* ExecutableLocator.swift */; };
 		058DDD127313F6FA4DD3C62D /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 478A254F483F853B19D7C33D /* AppState.swift */; };
 		10C4ACEB18AD06541B4EBAB4 /* MacAppStoreChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C5851E156CA1A17CB08040F /* MacAppStoreChecker.swift */; };
+		22E6B717B3A0BA1A4B9EFA81 /* SettingsCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85E08C3326B2247D912741CD /* SettingsCard.swift */; };
 		2B4DD6AAC8DE3CFAE6450268 /* UpdateAggregator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 089920C58FFAC1E76955FA9F /* UpdateAggregator.swift */; };
 		2C298F8195DEAFEBCF46B1B6 /* VersionComparatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBBB13B040B60426034E3306 /* VersionComparatorTests.swift */; };
 		2F74EE79ACD67A2648A3CE2F /* SparkleAppcastParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F6C5F92731D33BC7E452D7A /* SparkleAppcastParser.swift */; };
+		330C574EFB8380EE3367860A /* AppUpdater.swift in Sources */ = {isa = PBXBuildFile; fileRef = 512DDE52899A35EF340BEBD4 /* AppUpdater.swift */; };
+		338CEDD2FDB2F3BD241195CE /* SettingsUpdatesTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 642F0C625F8318A6F3321591 /* SettingsUpdatesTab.swift */; };
 		38F01061E85EB39D313903B1 /* ScannedApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB24B99BFC09F0AA925C472E /* ScannedApp.swift */; };
 		3AB92857DAA45F6BB886BE2B /* AppVersion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E4970BDAE8A8F6F786D1F49 /* AppVersion.swift */; };
 		3CF72A49788B4F79F71ADE3B /* SparkleAppcastParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0839D6494DEC9F6C449ECD9A /* SparkleAppcastParserTests.swift */; };
@@ -25,6 +28,7 @@
 		8B776813435C6BF51050DD4E /* ApplicationScannerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AEEB32235E435898E2DF0DA /* ApplicationScannerTests.swift */; };
 		8CAC3E47A6002FD3FB22CE2B /* AppRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEB75D6A3842108410237F1 /* AppRowView.swift */; };
 		954A506E96234FAA8F0AA76C /* SourceBadgeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76B553C0B220346509CBD25C /* SourceBadgeView.swift */; };
+		988057505A1A6C8DD5165B31 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 82B8D3EF3B02CC9FC09B4BD6 /* Sparkle */; };
 		AEBE5F3CC0718B53675F1AA4 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF50983CE36CBE57203F1405 /* AppSettings.swift */; };
 		AFE19BE3A7D2D0BA7C856711 /* ApplicationScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3247E12A55E04A500DBDD008 /* ApplicationScanner.swift */; };
 		BCDEEE537A66606C12F7152C /* UpdateSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2D058A1667501D51294FF80 /* UpdateSource.swift */; };
@@ -62,11 +66,14 @@
 		45E9C05B0991D5D85B4EC4E3 /* VersionComparator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VersionComparator.swift; sourceTree = "<group>"; };
 		478A254F483F853B19D7C33D /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		4C5851E156CA1A17CB08040F /* MacAppStoreChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacAppStoreChecker.swift; sourceTree = "<group>"; };
+		512DDE52899A35EF340BEBD4 /* AppUpdater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUpdater.swift; sourceTree = "<group>"; };
 		615E4AC58EA9440DEB740F79 /* ProcessRunner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessRunner.swift; sourceTree = "<group>"; };
+		642F0C625F8318A6F3321591 /* SettingsUpdatesTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsUpdatesTab.swift; sourceTree = "<group>"; };
 		6C1A768A75FE3CB0CBC2C83B /* ExecutableLocator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExecutableLocator.swift; sourceTree = "<group>"; };
 		6E4970BDAE8A8F6F786D1F49 /* AppVersion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppVersion.swift; sourceTree = "<group>"; };
 		76B553C0B220346509CBD25C /* SourceBadgeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourceBadgeView.swift; sourceTree = "<group>"; };
 		7F6C5F92731D33BC7E452D7A /* SparkleAppcastParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SparkleAppcastParser.swift; sourceTree = "<group>"; };
+		85E08C3326B2247D912741CD /* SettingsCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsCard.swift; sourceTree = "<group>"; };
 		9030A1FBEE66DE4AB486E5D7 /* MenuBarContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarContentView.swift; sourceTree = "<group>"; };
 		9C5CF24FBCA4671C54FD7452 /* PatchlyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PatchlyApp.swift; sourceTree = "<group>"; };
 		9EEB75D6A3842108410237F1 /* AppRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRowView.swift; sourceTree = "<group>"; };
@@ -79,6 +86,17 @@
 		F7ADF49836A71C2D4835DB83 /* DiscoveredApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscoveredApp.swift; sourceTree = "<group>"; };
 		FB24B99BFC09F0AA925C472E /* ScannedApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScannedApp.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		509E5EF55294F7683435F977 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				988057505A1A6C8DD5165B31 /* Sparkle in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		19408DCF9514C360EC86BC12 /* Persistence */ = {
@@ -106,6 +124,8 @@
 				9EEB75D6A3842108410237F1 /* AppRowView.swift */,
 				9030A1FBEE66DE4AB486E5D7 /* MenuBarContentView.swift */,
 				104D872DDEB98BB2E66049EF /* MenuBarLabelView.swift */,
+				85E08C3326B2247D912741CD /* SettingsCard.swift */,
+				642F0C625F8318A6F3321591 /* SettingsUpdatesTab.swift */,
 				3F875000E4B6BC8893602470 /* SettingsView.swift */,
 				76B553C0B220346509CBD25C /* SourceBadgeView.swift */,
 			);
@@ -182,6 +202,7 @@
 			isa = PBXGroup;
 			children = (
 				DF50983CE36CBE57203F1405 /* AppSettings.swift */,
+				512DDE52899A35EF340BEBD4 /* AppUpdater.swift */,
 				9C5CF24FBCA4671C54FD7452 /* PatchlyApp.swift */,
 			);
 			path = App;
@@ -232,6 +253,7 @@
 			buildPhases = (
 				23E4AB262AA6AD8FD6C72E88 /* Sources */,
 				52FA610C7750CF0418065C32 /* Resources */,
+				509E5EF55294F7683435F977 /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -239,6 +261,7 @@
 			);
 			name = Patchly;
 			packageProductDependencies = (
+				82B8D3EF3B02CC9FC09B4BD6 /* Sparkle */,
 			);
 			productName = Patchly;
 			productReference = 3EE862423CB3E367814762FF /* Patchly.app */;
@@ -270,6 +293,9 @@
 			);
 			mainGroup = F9F080856BE730A39176E22E;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				DEEF6AC3D1F8FF850ED15EBE /* XCRemoteSwiftPackageReference "Sparkle" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = A8FBB42C3D2A056FA604188B /* Products */;
 			projectDirPath = "";
@@ -300,6 +326,7 @@
 				8CAC3E47A6002FD3FB22CE2B /* AppRowView.swift in Sources */,
 				AEBE5F3CC0718B53675F1AA4 /* AppSettings.swift in Sources */,
 				058DDD127313F6FA4DD3C62D /* AppState.swift in Sources */,
+				330C574EFB8380EE3367860A /* AppUpdater.swift in Sources */,
 				3AB92857DAA45F6BB886BE2B /* AppVersion.swift in Sources */,
 				AFE19BE3A7D2D0BA7C856711 /* ApplicationScanner.swift in Sources */,
 				8755C357A1975FE254CDADBB /* CacheStore.swift in Sources */,
@@ -312,6 +339,8 @@
 				6AD0DE10BE173DA31DB695CF /* PatchlyApp.swift in Sources */,
 				F3C9E197390A3B9436571ECE /* ProcessRunner.swift in Sources */,
 				38F01061E85EB39D313903B1 /* ScannedApp.swift in Sources */,
+				22E6B717B3A0BA1A4B9EFA81 /* SettingsCard.swift in Sources */,
+				338CEDD2FDB2F3BD241195CE /* SettingsUpdatesTab.swift in Sources */,
 				C489CDA9D591D7DAD311521B /* SettingsView.swift in Sources */,
 				954A506E96234FAA8F0AA76C /* SourceBadgeView.swift in Sources */,
 				2F74EE79ACD67A2648A3CE2F /* SparkleAppcastParser.swift in Sources */,
@@ -586,6 +615,25 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		DEEF6AC3D1F8FF850ED15EBE /* XCRemoteSwiftPackageReference "Sparkle" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sparkle-project/Sparkle";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.6.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		82B8D3EF3B02CC9FC09B4BD6 /* Sparkle */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DEEF6AC3D1F8FF850ED15EBE /* XCRemoteSwiftPackageReference "Sparkle" */;
+			productName = Sparkle;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 412982F0B06BECEA8469CFAD /* Project object */;
 }

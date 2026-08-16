@@ -10,13 +10,13 @@ Freshly scaffolded: project structure, folder layout, and docs are in place, loo
 
 - Plain committed `Patchly.xcodeproj` (generated once via `xcodegen` from `project.yml`, then treated as a normal checked-in project — no Tuist, no regeneration as part of the build)
 - SwiftUI is the entire shell — a single `MenuBarExtra` scene, no AppKit shell, no hosted-window pattern (Patchly has no HUD, no global hotkeys, no reason for an AppKit composition root)
-- Zero third-party dependencies — Homebrew/mas are invoked as external processes; Sparkle appcasts belonging to other apps are parsed with Foundation's `XMLParser`
+- One third-party dependency, Sparkle (SPM), used solely for Patchly's own self-update — Homebrew/mas are still invoked as external processes; Sparkle appcasts belonging to *other* apps are still parsed with Foundation's `XMLParser`, not the linked framework
 - App Sandbox off (`ENABLE_APP_SANDBOX = NO`) — required to shell out to `brew`/`mas` and to read other apps' bundles freely
 - Scaffolding values (bundle ID, entitlements, Info.plist keys): `docs/ProjectSettings.md`
 
 ## Layout (modules as folders)
 
-- `Patchly/App/` — composition root: `PatchlyApp.swift` (the `@main` `MenuBarExtra` scene) and `AppSettings.swift` (UserDefaults-backed preferences: refresh interval, badge visibility)
+- `Patchly/App/` — composition root: `PatchlyApp.swift` (the `@main` `MenuBarExtra` scene), `AppSettings.swift` (UserDefaults-backed preferences: refresh interval, badge visibility), and `AppUpdater.swift` (wraps Sparkle's `SPUStandardUpdaterController` for self-update — distinct from `UpdateSource`, which is read-only checking of *other* apps)
 - `Patchly/Models/` — `ScannedApp` (the merged, displayable record) and `DiscoveredApp` (the scan-only intermediate, before any Update Source is attributed)
 - `Patchly/Scanner/` — `ApplicationScanner` (enumerates the three app directories, reads Info.plist) and `UpdateAggregator` (runs all three Update Sources concurrently, applies the Mac App Store > Homebrew Cask > Sparkle Feed priority from `CONTEXT.md`)
 - `Patchly/UpdateSources/` — one file per source (`HomebrewCaskChecker`, `MacAppStoreChecker`, `SparkleFeedChecker`), each independently unit-testable behind the shared `UpdateSource` protocol
@@ -37,6 +37,7 @@ Freshly scaffolded: project structure, folder layout, and docs are in place, loo
 2. Scanner + all three Update Sources + Aggregator, unit-tested independently — next
 3. Cache-first UI with manual/auto Refresh
 4. One-click update actions per source (deferred, needs its own design pass)
+5. ~~Self-update via Sparkle (Settings toggle, manual check, signed appcast on release)~~ done
 
 ## Agent skills
 

@@ -4,6 +4,7 @@ import SwiftUI
 struct PatchlyApp: App {
     @StateObject private var settings: AppSettings
     @StateObject private var appState: AppState
+    @StateObject private var updater = AppUpdater()
 
     init() {
         let settings = AppSettings()
@@ -17,14 +18,14 @@ struct PatchlyApp: App {
 
     var body: some Scene {
         MenuBarExtra {
-            MenuBarContentView(appState: appState)
+            MenuBarContentView(appState: appState, updater: updater)
         } label: {
             MenuBarLabelView(badgeCount: settings.showsBadgeCount ? appState.badgeCount : 0)
         }
         .menuBarExtraStyle(.window)
 
         Settings {
-            SettingsView()
+            SettingsView(updater: updater)
         }
     }
 }

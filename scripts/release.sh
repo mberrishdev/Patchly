@@ -8,9 +8,10 @@
 #
 # Patchly has no Developer ID yet, so the app is ad-hoc signed rather than
 # notarized: Gatekeeper will show "unidentified developer" on first launch,
-# bypassed with a right-click -> Open. There is no Sparkle appcast (Patchly
-# reads other apps' feeds, it doesn't self-update) and no Homebrew cask yet,
-# so neither is touched here.
+# bypassed with a right-click -> Open. This also EdDSA-signs the DMG with
+# scripts/generate-sparkle-keys.sh's Keychain-stored key and prepends a new
+# <item> to appcast.xml so Patchly's own Sparkle updater can find the
+# release. There is no Homebrew cask yet, so that isn't touched here.
 
 set -euo pipefail
 
@@ -45,6 +46,8 @@ fail() { printf '\033[1;31m✗ %s\033[0m\n' "$1" >&2; exit 1; }
 step "Preflight"
 command -v xcodebuild >/dev/null || fail "xcodebuild not found"
 command -v hdiutil >/dev/null || fail "hdiutil not found"
+SIGN_UPDATE="$REPO_ROOT/scripts/.sparkle-tools/bin/sign_update"
+[[ -x "$SIGN_UPDATE" ]] || fail "sign_update not found — run scripts/generate-sparkle-keys.sh first"
 if ! $DRY_RUN; then
   command -v gh >/dev/null || fail "gh not found — install the GitHub CLI"
   gh auth status >/dev/null 2>&1 || fail "gh is not authenticated — run 'gh auth login'"
@@ -164,17 +167,45 @@ SHA="$(shasum -a 256 "$DMG" | cut -d' ' -f1)"
 echo "  $DMG ($(du -h "$DMG" | cut -f1))"
 echo "  sha256 $SHA"
 
+step "Signing the update for Sparkle"
+SIGNATURE_ATTRS="$("$SIGN_UPDATE" "$DMG")"
+echo "  $SIGNATURE_ATTRS"
+
 if $DRY_RUN; then
   step "Dry run — nothing published"
   echo "  DMG: $DMG"
   echo "  version bump not written (dry run) — project.pbxproj is untouched"
+  echo "  appcast.xml not updated (dry run)"
   exit 0
 fi
+
+step "Adding $VERSION to appcast.xml"
+ITEM_FILE="$BUILD_DIR/appcast-item.xml"
+PUB_DATE="$(LC_TIME=C date -u +"%a, %d %b %Y %H:%M:%S %z")"
+DMG_SIZE="$(stat -f%z "$DMG")"
+cat > "$ITEM_FILE" <<EOF
+    <item>
+      <title>Patchly $VERSION</title>
+      <pubDate>$PUB_DATE</pubDate>
+      <sparkle:version>$BUILD_NUMBER</sparkle:version>
+      <sparkle:shortVersionString>$VERSION</sparkle:shortVersionString>
+      <enclosure
+        url="https://github.com/mberrishdev/Patchly/releases/download/$TAG/Patchly-$VERSION.dmg"
+        length="$DMG_SIZE"
+        type="application/octet-stream"
+        $SIGNATURE_ATTRS />
+    </item>
+EOF
+MARKER="<!-- scripts/release.sh inserts new <item> entries directly below this line, newest first -->"
+grep -qF "$MARKER" appcast.xml || fail "appcast.xml is missing the release.sh insertion marker"
+/usr/bin/sed -i '' "\\@$MARKER@r $ITEM_FILE" appcast.xml
+rm -f "$ITEM_FILE"
+echo "  prepended the $VERSION entry"
 
 # ----------------------------------------------------------------- publish
 
 step "Committing and tagging"
-git add project.yml Patchly.xcodeproj/project.pbxproj
+git add project.yml Patchly.xcodeproj/project.pbxproj appcast.xml
 if git diff --cached --quiet; then
   echo "  nothing staged — version already matches"
 else
