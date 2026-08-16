@@ -3,6 +3,10 @@ xcuserdata/
 *.xcuserstate
 DerivedData/
 .build/
+build/
 
 # macOS
 .DS_Store
+
+# Release artifacts
+*.dmg
