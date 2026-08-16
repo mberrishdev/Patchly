@@ -18,9 +18,9 @@ Freshly scaffolded: project structure, folder layout, and docs are in place, loo
 
 - `Patchly/App/` — composition root: `PatchlyApp.swift` (the `@main` `MenuBarExtra` scene), `AppSettings.swift` (UserDefaults-backed preferences: refresh interval, badge visibility), and `AppUpdater.swift` (wraps Sparkle's `SPUStandardUpdaterController` for self-update — distinct from `UpdateSource`, which is read-only checking of *other* apps)
 - `Patchly/Models/` — `ScannedApp` (the merged, displayable record) and `DiscoveredApp` (the scan-only intermediate, before any Update Source is attributed)
-- `Patchly/Scanner/` — `ApplicationScanner` (enumerates the three app directories, reads Info.plist) and `UpdateAggregator` (runs all three Update Sources concurrently, applies the Mac App Store > Homebrew Cask > Sparkle Feed priority from `CONTEXT.md`)
-- `Patchly/UpdateSources/` — one file per source (`HomebrewCaskChecker`, `MacAppStoreChecker`, `SparkleFeedChecker`), each independently unit-testable behind the shared `UpdateSource` protocol
-- `Patchly/Support/` — `ProcessRunner` (async wrapper over `Process`), `ExecutableLocator` (finds `brew`/`mas` without relying on inherited `$PATH`), `VersionComparator`, `SparkleAppcastParser`
+- `Patchly/Scanner/` — `ApplicationScanner` (enumerates the three app directories, reads Info.plist) and `UpdateAggregator` (runs all Update Sources concurrently, applies the Mac App Store > Homebrew Cask > Electron > Sparkle Feed priority from `CONTEXT.md`)
+- `Patchly/UpdateSources/` — one file per source (`HomebrewCaskChecker`, `MacAppStoreChecker`, `ElectronUpdateChecker`, `SparkleFeedChecker`), each independently unit-testable behind the shared `UpdateSource` protocol
+- `Patchly/Support/` — `ProcessRunner` (async wrapper over `Process`), `ExecutableLocator` (finds `brew`/`mas` without relying on inherited `$PATH`), `VersionComparator`, `SparkleAppcastParser`, `ElectronUpdateConfigParser` (parses `app-update.yml`), `Collection+Chunked` (bounds concurrent feed fetches)
 - `Patchly/Persistence/` — `CacheStore`, the Cache Snapshot JSON read/write
 - `Patchly/State/` — `AppState`, the `@MainActor` published source of truth the UI observes, owns the refresh timer and wake-notification subscription
 - `Patchly/UI/` — `MenuBarLabelView` (icon + Badge Count), `MenuBarContentView` (dropdown root), `AppRowView`, `SourceBadgeView`

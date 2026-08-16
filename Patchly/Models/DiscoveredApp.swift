@@ -9,6 +9,25 @@ struct DiscoveredApp: Hashable, Sendable {
     let installedVersion: String
     let hasMacAppStoreReceipt: Bool
     let sparkleFeedURL: URL?
+    let electronUpdateConfig: ElectronUpdateConfig?
+
+    init(
+        name: String,
+        bundlePath: String,
+        bundleIdentifier: String?,
+        installedVersion: String,
+        hasMacAppStoreReceipt: Bool,
+        sparkleFeedURL: URL?,
+        electronUpdateConfig: ElectronUpdateConfig? = nil
+    ) {
+        self.name = name
+        self.bundlePath = bundlePath
+        self.bundleIdentifier = bundleIdentifier
+        self.installedVersion = installedVersion
+        self.hasMacAppStoreReceipt = hasMacAppStoreReceipt
+        self.sparkleFeedURL = sparkleFeedURL
+        self.electronUpdateConfig = electronUpdateConfig
+    }
 
     var bundleFilename: String {
         (bundlePath as NSString).lastPathComponent

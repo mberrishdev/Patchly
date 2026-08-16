@@ -1,22 +1,25 @@
 import Foundation
 
-/// Runs all three Update Sources concurrently and applies the Mac App Store >
-/// Homebrew Cask > Sparkle Feed priority merge from CONTEXT.md.
+/// Runs all Update Sources concurrently and applies the Mac App Store >
+/// Homebrew Cask > Electron > Sparkle Feed priority merge from CONTEXT.md.
 actor UpdateAggregator {
     private let scanner: ApplicationScanner
     private let macAppStoreChecker: any UpdateSource
     private let homebrewCaskChecker: any UpdateSource
+    private let electronUpdateChecker: any UpdateSource
     private let sparkleFeedChecker: any UpdateSource
 
     init(
         scanner: ApplicationScanner = ApplicationScanner(),
         macAppStoreChecker: any UpdateSource = MacAppStoreChecker(),
         homebrewCaskChecker: any UpdateSource = HomebrewCaskChecker(),
+        electronUpdateChecker: any UpdateSource = ElectronUpdateChecker(),
         sparkleFeedChecker: any UpdateSource = SparkleFeedChecker()
     ) {
         self.scanner = scanner
         self.macAppStoreChecker = macAppStoreChecker
         self.homebrewCaskChecker = homebrewCaskChecker
+        self.electronUpdateChecker = electronUpdateChecker
         self.sparkleFeedChecker = sparkleFeedChecker
     }
 
@@ -33,6 +36,7 @@ actor UpdateAggregator {
             discovered: discovered,
             macAppStoreChecker: macAppStoreChecker,
             homebrewCaskChecker: homebrewCaskChecker,
+            electronUpdateChecker: electronUpdateChecker,
             sparkleFeedChecker: sparkleFeedChecker
         )
     }
@@ -41,17 +45,19 @@ actor UpdateAggregator {
         discovered: [DiscoveredApp],
         macAppStoreChecker: any UpdateSource,
         homebrewCaskChecker: any UpdateSource,
+        electronUpdateChecker: any UpdateSource,
         sparkleFeedChecker: any UpdateSource
     ) async -> [ScannedApp] {
         async let macResults = macAppStoreChecker.checkUpdates(for: discovered)
         async let homebrewResults = homebrewCaskChecker.checkUpdates(for: discovered)
+        async let electronResults = electronUpdateChecker.checkUpdates(for: discovered)
         async let sparkleResults = sparkleFeedChecker.checkUpdates(for: discovered)
 
-        let (mas, homebrew, sparkle) = await (macResults, homebrewResults, sparkleResults)
+        let (mas, homebrew, electron, sparkle) = await (macResults, homebrewResults, electronResults, sparkleResults)
         let now = Date()
 
         return discovered.map { app in
-            let (source, status) = attribute(app: app, mas: mas, homebrew: homebrew, sparkle: sparkle)
+            let (source, status) = attribute(app: app, mas: mas, homebrew: homebrew, electron: electron, sparkle: sparkle)
             return ScannedApp(
                 id: app.bundleIdentifier ?? app.bundlePath,
                 name: app.name,
@@ -69,6 +75,7 @@ actor UpdateAggregator {
         app: DiscoveredApp,
         mas: [String: UpdateCheckResult],
         homebrew: [String: UpdateCheckResult],
+        electron: [String: UpdateCheckResult],
         sparkle: [String: UpdateCheckResult]
     ) -> (AppSource, UpdateStatus) {
         if app.hasMacAppStoreReceipt {
@@ -76,6 +83,9 @@ actor UpdateAggregator {
         }
         if let result = homebrew[app.bundlePath] {
             return (.homebrewCask, result.status)
+        }
+        if app.electronUpdateConfig != nil {
+            return (.electron, electron[app.bundlePath]?.status ?? .checkFailed(reason: "No result"))
         }
         if app.sparkleFeedURL != nil {
             return (.sparkleFeed, sparkle[app.bundlePath]?.status ?? .checkFailed(reason: "No result"))

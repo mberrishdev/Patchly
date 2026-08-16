@@ -64,13 +64,19 @@ actor ApplicationScanner {
 
         let feedURL = (info["SUFeedURL"] as? String).flatMap(URL.init(string:))
 
+        let updateConfigPath = bundleURL.appendingPathComponent("Contents/Resources/app-update.yml").path
+        let electronConfig = FileManager.default.contents(atPath: updateConfigPath)
+            .flatMap { String(data: $0, encoding: .utf8) }
+            .flatMap(ElectronUpdateConfigParser.parse)
+
         return DiscoveredApp(
             name: name,
             bundlePath: bundleURL.path,
             bundleIdentifier: info["CFBundleIdentifier"] as? String,
             installedVersion: version,
             hasMacAppStoreReceipt: hasReceipt,
-            sparkleFeedURL: feedURL
+            sparkleFeedURL: feedURL,
+            electronUpdateConfig: electronConfig
         )
     }
 }

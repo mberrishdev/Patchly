@@ -18,6 +18,7 @@ struct SourceBadgeView: View {
         switch source {
         case .macAppStore: "App Store"
         case .homebrewCask: "Homebrew"
+        case .electron: "Electron"
         case .sparkleFeed: "Sparkle"
         case .unknown: nil
         }
@@ -28,6 +29,7 @@ struct SourceBadgeView: View {
     HStack(spacing: 8) {
         SourceBadgeView(source: .macAppStore)
         SourceBadgeView(source: .homebrewCask)
+        SourceBadgeView(source: .electron)
         SourceBadgeView(source: .sparkleFeed)
         SourceBadgeView(source: .unknown)
     }

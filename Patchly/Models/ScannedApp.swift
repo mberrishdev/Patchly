@@ -15,6 +15,7 @@ struct ScannedApp: Identifiable, Codable, Hashable, Sendable {
 enum AppSource: String, Codable, Hashable, Sendable {
     case macAppStore
     case homebrewCask
+    case electron
     case sparkleFeed
     case unknown
 }
