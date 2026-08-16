@@ -23,3 +23,13 @@ struct SourceBadgeView: View {
         }
     }
 }
+
+#Preview {
+    HStack(spacing: 8) {
+        SourceBadgeView(source: .macAppStore)
+        SourceBadgeView(source: .homebrewCask)
+        SourceBadgeView(source: .sparkleFeed)
+        SourceBadgeView(source: .unknown)
+    }
+    .padding()
+}

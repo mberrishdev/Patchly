@@ -56,3 +56,31 @@ struct AppRowView: View {
         }
     }
 }
+
+#Preview {
+    VStack(spacing: 0) {
+        AppRowView(app: .preview(name: "Maccy", source: .homebrewCask, status: .updateAvailable(latestVersion: "2.7.1")))
+        Divider()
+        AppRowView(app: .preview(name: "Numbers", source: .macAppStore, status: .unknownMasCliMissing))
+        Divider()
+        AppRowView(app: .preview(name: "Talkify", source: .sparkleFeed, status: .upToDate))
+        Divider()
+        AppRowView(app: .preview(name: "Figma", source: .unknown, status: .unknownNoSource))
+    }
+    .frame(width: 340)
+}
+
+private extension ScannedApp {
+    static func preview(name: String, source: AppSource, status: UpdateStatus) -> ScannedApp {
+        ScannedApp(
+            id: name,
+            name: name,
+            bundlePath: "/Applications/\(name).app",
+            bundleIdentifier: nil,
+            installedVersion: "1.0.0",
+            source: source,
+            updateStatus: status,
+            lastCheckedAt: Date()
+        )
+    }
+}

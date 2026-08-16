@@ -13,3 +13,7 @@ struct MenuBarLabelView: View {
         }
     }
 }
+
+#Preview {
+    MenuBarLabelView(badgeCount: 3)
+}
