@@ -3,6 +3,8 @@ import SwiftUI
 
 struct MenuBarContentView: View {
     @ObservedObject var appState: AppState
+    @Environment(\.openSettings) private var openSettings
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         VStack(spacing: 0) {
@@ -58,7 +60,14 @@ struct MenuBarContentView: View {
                 .disabled(appState.isRefreshing)
                 .help("Refresh")
 
-                SettingsLink {
+                Button {
+                    dismiss()
+                    // LSUIElement apps never activate themselves, so opening
+                    // (or refocusing) the Settings window would otherwise
+                    // land behind whatever app currently has focus.
+                    NSApp.activate(ignoringOtherApps: true)
+                    openSettings()
+                } label: {
                     Image(systemName: "gearshape")
                 }
                 .buttonStyle(.plain)
