@@ -1,6 +1,6 @@
 cask "patchly" do
-  version "0.0.8"
-  sha256 "848830e4c21f90c501554d6542f2e2ca0318368b0816d0824bad3a5b67ac252e"
+  version "0.0.10"
+  sha256 "bb0afcc616cd80e36e9a597e054e777daaab7f8334aecc8498a4bb2bae389f5b"
 
   url "https://github.com/mberrishdev/Patchly/releases/download/v#{version}/Patchly-#{version}.dmg",
       verified: "github.com/mberrishdev/Patchly/"
