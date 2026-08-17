@@ -182,7 +182,6 @@ fi
 step "Adding $VERSION to appcast.xml"
 ITEM_FILE="$BUILD_DIR/appcast-item.xml"
 PUB_DATE="$(LC_TIME=C date -u +"%a, %d %b %Y %H:%M:%S %z")"
-DMG_SIZE="$(stat -f%z "$DMG")"
 cat > "$ITEM_FILE" <<EOF
     <item>
       <title>Patchly $VERSION</title>
@@ -191,7 +190,6 @@ cat > "$ITEM_FILE" <<EOF
       <sparkle:shortVersionString>$VERSION</sparkle:shortVersionString>
       <enclosure
         url="https://github.com/mberrishdev/Patchly/releases/download/$TAG/Patchly-$VERSION.dmg"
-        length="$DMG_SIZE"
         type="application/octet-stream"
         $SIGNATURE_ATTRS />
     </item>
