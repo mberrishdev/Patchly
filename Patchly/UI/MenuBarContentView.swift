@@ -8,6 +8,7 @@ struct MenuBarContentView: View {
     @Environment(\.openSettings) private var openSettings
     @Environment(\.dismiss) private var dismiss
     @State private var showBatchUpdateConfirm = false
+    @State private var showCLIToolBatchUpdateConfirm = false
     @State private var searchText = ""
 
     var body: some View {
@@ -41,9 +42,10 @@ struct MenuBarContentView: View {
                             ForEach(filteredCLITools) { tool in
                                 CLIToolRowView(
                                     tool: tool,
+                                    isSelected: tool.updateStatus.isUpdateAvailable ? cliToolSelectionBinding(for: tool) : nil,
                                     isInstalling: appState.installingCLIToolNames.contains(tool.name),
                                     onUpdate: {
-                                        Task { await appState.installCLIToolUpdate(for: tool.name) }
+                                        Task { await appState.installCLIToolUpdates(for: [tool.name]) }
                                     }
                                 )
                                 Divider()
@@ -53,12 +55,18 @@ struct MenuBarContentView: View {
                 }
                 // `maxHeight` alone gives ScrollView no reliable intrinsic size in a
                 // MenuBarExtra `.window` popover, and it can collapse to zero height.
-                // Compute an explicit height from row count instead.
+                // Compute an explicit height from row count instead, floored to a
+                // whole number of rows — a partial row peeking at the clipped edge
+                // reads as if the footer below is covering it.
                 .frame(height: listHeight)
 
                 if !appState.selectedBundlePaths.isEmpty {
                     Divider()
                     selectionBar
+                }
+                if !appState.selectedCLIToolNames.isEmpty {
+                    Divider()
+                    cliToolSelectionBar
                 }
             }
             Divider()
@@ -74,8 +82,8 @@ struct MenuBarContentView: View {
 
     private var filteredCLITools: [CLITool] {
         guard settings.showsCLITools else { return [] }
-        guard !searchText.isEmpty else { return appState.cliTools }
-        return appState.cliTools.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
+        guard !searchText.isEmpty else { return appState.sortedCLITools }
+        return appState.sortedCLITools.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
     }
 
     private var searchField: some View {
@@ -144,6 +152,47 @@ struct MenuBarContentView: View {
             Button("Update") {
                 let targets = appState.selectedBundlePaths
                 Task { await appState.installUpdates(for: targets) }
+            }
+            Button("Cancel", role: .cancel) {}
+        }
+    }
+
+    private func cliToolSelectionBinding(for tool: CLITool) -> Binding<Bool> {
+        Binding(
+            get: { appState.selectedCLIToolNames.contains(tool.name) },
+            set: { isOn in
+                if isOn {
+                    appState.selectedCLIToolNames.insert(tool.name)
+                } else {
+                    appState.selectedCLIToolNames.remove(tool.name)
+                }
+            }
+        )
+    }
+
+    private var cliToolSelectionBar: some View {
+        HStack {
+            Text("\(appState.selectedCLIToolNames.count) selected")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            Spacer()
+            Button("Update Selected") {
+                showCLIToolBatchUpdateConfirm = true
+            }
+            .buttonStyle(.plain)
+            .font(.caption)
+            .foregroundStyle(.blue)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .confirmationDialog(
+            "Update \(appState.selectedCLIToolNames.count) CLI tools?",
+            isPresented: $showCLIToolBatchUpdateConfirm,
+            titleVisibility: .visible
+        ) {
+            Button("Update") {
+                let targets = appState.selectedCLIToolNames
+                Task { await appState.installCLIToolUpdates(for: targets) }
             }
             Button("Cancel", role: .cancel) {}
         }
@@ -241,12 +290,19 @@ struct MenuBarContentView: View {
     private var listHeight: CGFloat {
         let estimatedRowHeight: CGFloat = 44
         let estimatedSectionHeaderHeight: CGFloat = 22
+        let maxHeight: CGFloat = 420
         var contentHeight = CGFloat(filteredApps.count) * estimatedRowHeight
         if !filteredCLITools.isEmpty {
             contentHeight += estimatedSectionHeaderHeight
             contentHeight += CGFloat(filteredCLITools.count) * estimatedRowHeight
         }
-        return min(max(contentHeight, estimatedRowHeight), 420)
+        guard contentHeight > maxHeight else {
+            return max(contentHeight, estimatedRowHeight)
+        }
+        // Floor to a whole number of rows within the cap — a partial row
+        // peeking at the clipped edge reads as though the footer below it
+        // is covering the text, rather than as a normal scroll boundary.
+        return (maxHeight / estimatedRowHeight).rounded(.down) * estimatedRowHeight
     }
 
     private var lastRefreshedText: String {

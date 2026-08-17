@@ -13,6 +13,7 @@ final class AppState: ObservableObject {
     @Published private(set) var installingBundlePaths: Set<String> = []
     @Published private(set) var installingCLIToolNames: Set<String> = []
     @Published var selectedBundlePaths: Set<String> = []
+    @Published var selectedCLIToolNames: Set<String> = []
 
     var badgeCount: Int {
         scannedApps.filter(\.updateStatus.isUpdateAvailable).count
@@ -20,6 +21,18 @@ final class AppState: ObservableObject {
 
     var sortedApps: [ScannedApp] {
         scannedApps.sorted { lhs, rhs in
+            if lhs.updateStatus.sortPriority != rhs.updateStatus.sortPriority {
+                return lhs.updateStatus.sortPriority < rhs.updateStatus.sortPriority
+            }
+            return lhs.name.localizedCaseInsensitiveCompare(rhs.name) == .orderedAscending
+        }
+    }
+
+    /// Same priority-then-name ordering as `sortedApps`, so CLI Tools that
+    /// need an update aren't buried alphabetically among however many
+    /// Homebrew formulae are installed.
+    var sortedCLITools: [CLITool] {
+        cliTools.sorted { lhs, rhs in
             if lhs.updateStatus.sortPriority != rhs.updateStatus.sortPriority {
                 return lhs.updateStatus.sortPriority < rhs.updateStatus.sortPriority
             }
@@ -112,23 +125,41 @@ final class AppState: ObservableObject {
         }
     }
 
-    /// Installs a single CLI Tool's update via `UpdateInstaller`. Success
-    /// re-runs only the CLI Tool discovery+check pass, never a full Refresh
-    /// — a `brew upgrade` can't change anything about `scannedApps`. See
-    /// CONTEXT.md.
-    func installCLIToolUpdate(for name: String) async {
-        guard let tool = cliTools.first(where: { $0.name == name }) else { return }
+    /// Installs the update for each given CLI Tool via `UpdateInstaller`, in
+    /// parallel — one tool's failure never blocks another's, same as
+    /// `installUpdates(for:)`. A successful batch re-runs only the CLI Tool
+    /// discovery+check pass, never a full Refresh — a `brew upgrade` can't
+    /// change anything about `scannedApps`. See CONTEXT.md.
+    func installCLIToolUpdates(for names: Set<String>) async {
+        let targets = cliTools.filter { names.contains($0.name) }
+        guard !targets.isEmpty else { return }
 
-        installingCLIToolNames.insert(name)
-        let result = await installer.install(tool)
-        installingCLIToolNames.remove(name)
+        installingCLIToolNames.formUnion(targets.map(\.name))
+        selectedCLIToolNames.subtract(targets.map(\.name))
 
-        if result.succeeded {
+        var anySucceeded = false
+        await withTaskGroup(of: CLIToolUpdateInstallResult.self) { group in
+            for tool in targets {
+                group.addTask { await self.installer.install(tool) }
+            }
+            for await result in group {
+                if result.succeeded {
+                    anySucceeded = true
+                } else if let index = cliTools.firstIndex(where: { $0.name == result.name }) {
+                    cliTools[index].updateStatus = .checkFailed(reason: result.failureReason ?? "Update failed")
+                }
+            }
+        }
+
+        installingCLIToolNames.subtract(targets.map(\.name))
+
+        if anySucceeded {
             let tools = await refreshCLIToolsIfEnabled()
-            guard !Task.isCancelled else { return }
+            guard !Task.isCancelled else {
+                cacheStore.save(apps: scannedApps, cliTools: cliTools)
+                return
+            }
             cliTools = tools
-        } else if let index = cliTools.firstIndex(where: { $0.name == name }) {
-            cliTools[index].updateStatus = .checkFailed(reason: result.failureReason ?? "Update failed")
         }
         cacheStore.save(apps: scannedApps, cliTools: cliTools)
     }

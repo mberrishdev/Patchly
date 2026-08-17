@@ -53,7 +53,7 @@ _Avoid_: Notification count, alert count
 **Update Action**: How Patchly installs a Scanned App's available update: running `brew upgrade --cask` (Homebrew Cask Source), running `mas upgrade` (Mac App Store Source), or activating the app so its own linked updater runs (Electron Source, Sparkle Feed Source).
 _Avoid_: Install method (that term is reserved for Update Source, the detection origin — Update Action is what happens when the user asks to install)
 
-**Selection**: The set of Scanned Apps the user has checked in the dropdown for a batch Update Action, independent of Update Status or Update Source.
+**Selection**: The set of Scanned Apps or CLI Tools the user has checked in the dropdown for a batch Update Action, independent of Update Status or Update Source. Scanned App Selection and CLI Tool Selection are two separate sets — checking apps and CLI Tools at the same time shows two independent "Update Selected" bars, not one combined one.
 _Avoid_: Multi-select (describes the UI gesture, not the domain concept)
 
 **CLI Tool**: A Homebrew-installed developer command-line formula (e.g. ripgrep, jq), discovered via `brew list --formula --versions` rather than a fixed name list, directory scan, or per-binary probing, shown in the dropdown by its formula name with its installed version. Always attributed to the Homebrew Formula Source — there's no unattributed CLI Tool state, since Homebrew is the only thing Patchly discovers CLI Tools from at all.
@@ -113,7 +113,8 @@ _Avoid_: Filter (Search is the user-typed text specifically; it never changes th
 - Every CLI Tool is attributed to the Homebrew Formula Source by construction, since that's the only thing Patchly discovers CLI Tools from — there's no unattributed CLI Tool state, and no per-tool attribution step (unlike an Update Source's attribution across several possible origins for a Scanned App)
 - A CLI Tool's Update Status comes from a single `brew info --json=v2 --formula --installed` call (same one-call-carries-everything shape as the Homebrew Cask Source), matched to each discovered CLI Tool directly by formula name
 - A CLI Tool's Update Action hands off to `brew upgrade <formula>` — the same "hand off to a CLI that already downloads, verifies, and installs" reasoning as the Homebrew Cask/Mac App Store Update Actions; a successful CLI Tool update re-runs only the CLI Tool discovery+check pass, never a full Refresh, since it can't change anything about Scanned Apps
-- A CLI Tool row has no checkbox — Selection never applies to CLI Tools — but does show a Source Badge and an Update button when it has a real Update Status
+- A CLI Tool row shows a checkbox for Selection whenever it has an Update Available, exactly like a Scanned App row — checking multiple CLI Tools and clicking Update Selected shows its own confirmation, independent of any Scanned App Selection, and installs the checked tools in parallel the same way a batch app update does
+- The CLI Tools list sorts the same way the Scanned Apps list does — Update Available first, then Check Failed, then Up to Date, then Unknown — No Source, alphabetically within each group — so a tool needing an update isn't buried alphabetically among however many formulae are installed
 - A Refresh publishes Scanned Apps as soon as they're ready rather than waiting on CLI Tools too, since there's no reason to hold the app results back for an unrelated check — the two passes start concurrently. `isRefreshing` — and the disabled Refresh button — stays true for the whole duration, not just the apps portion
 - The auto-Refresh interval is user-configurable from Settings (1/3/6/12/24 hours), backed by the same `refreshIntervalSeconds` the timer already reads
 

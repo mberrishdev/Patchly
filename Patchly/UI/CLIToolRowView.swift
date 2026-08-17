@@ -3,15 +3,22 @@ import SwiftUI
 /// A single CLI Tool row: name + version, plus an Update Status slot when
 /// the tool is attributed to a CLI Tool Source — a tool with no attributed
 /// source shows nothing beyond its version, same as before source
-/// attribution existed. No checkbox and no Selection; a CLI Tool updates
-/// one row at a time. See CONTEXT.md ("CLI Tool").
+/// attribution existed. Gets a checkbox for Selection only when an update
+/// is available, same as `AppRowView`. See CONTEXT.md ("CLI Tool").
 struct CLIToolRowView: View {
     let tool: CLITool
+    var isSelected: Binding<Bool>?
     var isInstalling = false
     var onUpdate: () -> Void = {}
 
     var body: some View {
         HStack(spacing: 10) {
+            if let isSelected {
+                Toggle("", isOn: isSelected)
+                    .toggleStyle(.checkbox)
+                    .labelsHidden()
+            }
+
             Image(systemName: "terminal")
                 .frame(width: 28, height: 28)
                 .foregroundStyle(.secondary)
@@ -61,14 +68,24 @@ struct CLIToolRowView: View {
 }
 
 #Preview {
-    VStack(spacing: 0) {
-        CLIToolRowView(tool: .preview(name: "rg", source: .homebrewFormula, status: .updateAvailable(latestVersion: "14.1.1")))
-        Divider()
-        CLIToolRowView(tool: .preview(name: "jq", source: .homebrewFormula, status: .upToDate))
-        Divider()
-        CLIToolRowView(tool: .preview(name: "curl", source: .none, status: .unknownNoSource))
+    struct PreviewContainer: View {
+        @State private var selected = true
+
+        var body: some View {
+            VStack(spacing: 0) {
+                CLIToolRowView(
+                    tool: .preview(name: "rg", source: .homebrewFormula, status: .updateAvailable(latestVersion: "14.1.1")),
+                    isSelected: $selected
+                )
+                Divider()
+                CLIToolRowView(tool: .preview(name: "jq", source: .homebrewFormula, status: .upToDate))
+                Divider()
+                CLIToolRowView(tool: .preview(name: "curl", source: .none, status: .unknownNoSource))
+            }
+            .frame(width: 340)
+        }
     }
-    .frame(width: 340)
+    return PreviewContainer()
 }
 
 private extension CLITool {
