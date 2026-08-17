@@ -7,6 +7,7 @@ import Foundation
 @MainActor
 final class AppState: ObservableObject {
     @Published private(set) var scannedApps: [ScannedApp] = []
+    @Published private(set) var cliTools: [CLITool] = []
     @Published private(set) var isRefreshing = false
     @Published private(set) var lastRefreshDate: Date?
     @Published private(set) var installingBundlePaths: Set<String> = []
@@ -29,6 +30,7 @@ final class AppState: ObservableObject {
     private let cacheStore: CacheStore
     private let settings: AppSettings
     private let installer: UpdateInstaller
+    private let cliToolScanner: CLIToolScanner
 
     private var refreshTask: Task<Void, Never>?
     private var timerTask: Task<Void, Never>?
@@ -37,12 +39,14 @@ final class AppState: ObservableObject {
         aggregator: UpdateAggregator = UpdateAggregator(),
         cacheStore: CacheStore = CacheStore(),
         settings: AppSettings,
-        installer: UpdateInstaller = UpdateInstaller()
+        installer: UpdateInstaller = UpdateInstaller(),
+        cliToolScanner: CLIToolScanner = CLIToolScanner()
     ) {
         self.aggregator = aggregator
         self.cacheStore = cacheStore
         self.settings = settings
         self.installer = installer
+        self.cliToolScanner = cliToolScanner
         self.scannedApps = cacheStore.load()
     }
 
@@ -136,15 +140,27 @@ final class AppState: ObservableObject {
 
     private func performRefresh() async {
         isRefreshing = true
-        let results = await aggregator.refresh()
+        async let appsResult = aggregator.refresh()
+        async let toolsResult = scanCLIToolsIfEnabled()
+        let results = await appsResult
+        let tools = await toolsResult
         guard !Task.isCancelled else {
             isRefreshing = false
             return
         }
         scannedApps = results
+        cliTools = tools
         lastRefreshDate = Date()
         isRefreshing = false
         cacheStore.save(results)
+    }
+
+    /// CLI Tool detection is 100% local and read-only, so it's cheap to fold
+    /// into the same Refresh — but only when the user has opted in. See
+    /// CONTEXT.md ("CLI Tool").
+    private func scanCLIToolsIfEnabled() async -> [CLITool] {
+        guard settings.showsCLITools else { return [] }
+        return await cliToolScanner.scanInstalledTools()
     }
 
     private func scheduleTimer() {

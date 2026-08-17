@@ -11,6 +11,8 @@
 		03B931F47BBFCB9BF34E4A0B /* Collection+Chunked.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E1B7F800CB93230E6BC2033 /* Collection+Chunked.swift */; };
 		058DDD127313F6FA4DD3C62D /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 478A254F483F853B19D7C33D /* AppState.swift */; };
 		10C4ACEB18AD06541B4EBAB4 /* MacAppStoreChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C5851E156CA1A17CB08040F /* MacAppStoreChecker.swift */; };
+		15BB36ACADCDF39905DC6543 /* ElectronUpdateManifestParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B60AFE992161FD470E184CEA /* ElectronUpdateManifestParserTests.swift */; };
+		1CC72B2F2F4488C1387E1ACD /* CLIToolScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = D414507C59EA7035C4CB6663 /* CLIToolScanner.swift */; };
 		22E6B717B3A0BA1A4B9EFA81 /* SettingsCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85E08C3326B2247D912741CD /* SettingsCard.swift */; };
 		245B30B5A7C9E06B26A339A4 /* ElectronUpdateConfigParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E651F1203BD902FD91EE01D /* ElectronUpdateConfigParserTests.swift */; };
 		2B4DD6AAC8DE3CFAE6450268 /* UpdateAggregator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 089920C58FFAC1E76955FA9F /* UpdateAggregator.swift */; };
@@ -21,31 +23,41 @@
 		38F01061E85EB39D313903B1 /* ScannedApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB24B99BFC09F0AA925C472E /* ScannedApp.swift */; };
 		3AB92857DAA45F6BB886BE2B /* AppVersion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E4970BDAE8A8F6F786D1F49 /* AppVersion.swift */; };
 		3CF72A49788B4F79F71ADE3B /* SparkleAppcastParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0839D6494DEC9F6C449ECD9A /* SparkleAppcastParserTests.swift */; };
+		3E5A45BC181ACF98FDFCE79E /* SettingsGeneralTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = D01636938115FBB1D71DFB09 /* SettingsGeneralTab.swift */; };
 		5105C903C25647D26B3CF4A7 /* ElectronUpdateConfigParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB91F060FFE31FCF107E397 /* ElectronUpdateConfigParser.swift */; };
+		54EBF41F401ED2A34D0DDDA2 /* UpdateArchiveExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2F37DA29700A627B0196886 /* UpdateArchiveExtractor.swift */; };
 		5662FB282A805842169413E3 /* MenuBarContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9030A1FBEE66DE4AB486E5D7 /* MenuBarContentView.swift */; };
 		57D79764C19C6E7E76235572 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9FA060E772F1F78705E61189 /* Assets.xcassets */; };
 		6AD0DE10BE173DA31DB695CF /* PatchlyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C5CF24FBCA4671C54FD7452 /* PatchlyApp.swift */; };
+		6FFA738242CD0429530A4E2E /* CLITool.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAA89791D4AC2D2388DDBC5F /* CLITool.swift */; };
 		765A63C58CD2B12D07EA28CD /* HomebrewCaskCheckerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28B2EFAB29773DA1D8EA9AB5 /* HomebrewCaskCheckerTests.swift */; };
 		7C7D5F30DF1957E7FF83A80C /* VersionComparator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45E9C05B0991D5D85B4EC4E3 /* VersionComparator.swift */; };
 		85DACC4A79B3C6D66748B89B /* ElectronUpdateChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A193A9D2479C523910BC2DF /* ElectronUpdateChecker.swift */; };
 		8755C357A1975FE254CDADBB /* CacheStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 318A19726094A6682B93E177 /* CacheStore.swift */; };
+		8AAB88480698A39689BF600D /* CLIToolScannerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F4F33972DF2BD3A3C9298C /* CLIToolScannerTests.swift */; };
 		8B776813435C6BF51050DD4E /* ApplicationScannerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AEEB32235E435898E2DF0DA /* ApplicationScannerTests.swift */; };
 		8CAC3E47A6002FD3FB22CE2B /* AppRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEB75D6A3842108410237F1 /* AppRowView.swift */; };
 		94F36ECB51EF67E7B0475489 /* SparkleDirectInstallerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CF0EBB12A9EA2694E8DE7B /* SparkleDirectInstallerTests.swift */; };
 		954A506E96234FAA8F0AA76C /* SourceBadgeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76B553C0B220346509CBD25C /* SourceBadgeView.swift */; };
 		988057505A1A6C8DD5165B31 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 82B8D3EF3B02CC9FC09B4BD6 /* Sparkle */; };
 		A4B7BED18E2121E2EE152E07 /* SparkleDirectInstaller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8744FCA5D7FC285AC75AAF9F /* SparkleDirectInstaller.swift */; };
+		A5DD6AEBA387F241B1E53F55 /* RunningAppReplacer.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC11BB66BFAF2B2DF257CB74 /* RunningAppReplacer.swift */; };
+		A8788AE06B15FEF385AFF09B /* ElectronUpdateManifestParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E0B1E5AEAF3D8257F12969F /* ElectronUpdateManifestParser.swift */; };
 		AEBE5F3CC0718B53675F1AA4 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF50983CE36CBE57203F1405 /* AppSettings.swift */; };
 		AFE19BE3A7D2D0BA7C856711 /* ApplicationScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3247E12A55E04A500DBDD008 /* ApplicationScanner.swift */; };
 		BCDEEE537A66606C12F7152C /* UpdateSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2D058A1667501D51294FF80 /* UpdateSource.swift */; };
+		BD24C968BE44562492B3A003 /* AppSettingsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40F0411BABDB06B956994AAE /* AppSettingsTests.swift */; };
+		C157A65F03F1DC935DC81E02 /* ElectronDirectInstallerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 625E457D37A2F321BDAA722E /* ElectronDirectInstallerTests.swift */; };
 		C241F883CB19224ADE9CCF36 /* MenuBarLabelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 104D872DDEB98BB2E66049EF /* MenuBarLabelView.swift */; };
 		C42C8BDC6BB6C71AC9C11339 /* DiscoveredApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7ADF49836A71C2D4835DB83 /* DiscoveredApp.swift */; };
 		C489CDA9D591D7DAD311521B /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F875000E4B6BC8893602470 /* SettingsView.swift */; };
 		C4BB916DEF8F1D9E247F129C /* HomebrewCaskChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F1FEEEDCD6959330CA39F8D /* HomebrewCaskChecker.swift */; };
 		CEC7AB43DCBCD49642E9EFB1 /* UpdateInstallerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 700604D5BEA9C6B3D7A4D0FD /* UpdateInstallerTests.swift */; };
 		CFF5AA9B7D24F726AB12B082 /* SparkleFeedChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4A4D6B5A6353473001D01F2 /* SparkleFeedChecker.swift */; };
+		DE66BD2880668A81745548DF /* ElectronDirectInstaller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15C2498948BCB72E0EDD1337 /* ElectronDirectInstaller.swift */; };
 		F13AC3DC0110D67780BACD3E /* UpdateInstaller.swift in Sources */ = {isa = PBXBuildFile; fileRef = B128FE44C3D9E82E4849C1D8 /* UpdateInstaller.swift */; };
 		F3C9E197390A3B9436571ECE /* ProcessRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 615E4AC58EA9440DEB740F79 /* ProcessRunner.swift */; };
+		F99C1FF8670356D36E86EF8F /* CLIToolRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68E83576EBE92C3E263C623B /* CLIToolRowView.swift */; };
 		FB1089ACE31250751A5015F9 /* MacAppStoreCheckerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BD94FB6F69FC7AA8488D13C /* MacAppStoreCheckerTests.swift */; };
 /* End PBXBuildFile section */
 
@@ -64,6 +76,7 @@
 		089920C58FFAC1E76955FA9F /* UpdateAggregator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateAggregator.swift; sourceTree = "<group>"; };
 		0E651F1203BD902FD91EE01D /* ElectronUpdateConfigParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElectronUpdateConfigParserTests.swift; sourceTree = "<group>"; };
 		104D872DDEB98BB2E66049EF /* MenuBarLabelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarLabelView.swift; sourceTree = "<group>"; };
+		15C2498948BCB72E0EDD1337 /* ElectronDirectInstaller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElectronDirectInstaller.swift; sourceTree = "<group>"; };
 		28B2EFAB29773DA1D8EA9AB5 /* HomebrewCaskCheckerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomebrewCaskCheckerTests.swift; sourceTree = "<group>"; };
 		2A193A9D2479C523910BC2DF /* ElectronUpdateChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElectronUpdateChecker.swift; sourceTree = "<group>"; };
 		2DB91F060FFE31FCF107E397 /* ElectronUpdateConfigParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElectronUpdateConfigParser.swift; sourceTree = "<group>"; };
@@ -72,15 +85,20 @@
 		3247E12A55E04A500DBDD008 /* ApplicationScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationScanner.swift; sourceTree = "<group>"; };
 		3AEEB32235E435898E2DF0DA /* ApplicationScannerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationScannerTests.swift; sourceTree = "<group>"; };
 		3BD94FB6F69FC7AA8488D13C /* MacAppStoreCheckerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacAppStoreCheckerTests.swift; sourceTree = "<group>"; };
+		3E0B1E5AEAF3D8257F12969F /* ElectronUpdateManifestParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElectronUpdateManifestParser.swift; sourceTree = "<group>"; };
 		3EE862423CB3E367814762FF /* Patchly.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Patchly.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3F875000E4B6BC8893602470 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		40F0411BABDB06B956994AAE /* AppSettingsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettingsTests.swift; sourceTree = "<group>"; };
 		45E9C05B0991D5D85B4EC4E3 /* VersionComparator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VersionComparator.swift; sourceTree = "<group>"; };
 		478A254F483F853B19D7C33D /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		4C5851E156CA1A17CB08040F /* MacAppStoreChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacAppStoreChecker.swift; sourceTree = "<group>"; };
 		512DDE52899A35EF340BEBD4 /* AppUpdater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUpdater.swift; sourceTree = "<group>"; };
+		57F4F33972DF2BD3A3C9298C /* CLIToolScannerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLIToolScannerTests.swift; sourceTree = "<group>"; };
 		5E1B7F800CB93230E6BC2033 /* Collection+Chunked.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Collection+Chunked.swift"; sourceTree = "<group>"; };
 		615E4AC58EA9440DEB740F79 /* ProcessRunner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessRunner.swift; sourceTree = "<group>"; };
+		625E457D37A2F321BDAA722E /* ElectronDirectInstallerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElectronDirectInstallerTests.swift; sourceTree = "<group>"; };
 		642F0C625F8318A6F3321591 /* SettingsUpdatesTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsUpdatesTab.swift; sourceTree = "<group>"; };
+		68E83576EBE92C3E263C623B /* CLIToolRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLIToolRowView.swift; sourceTree = "<group>"; };
 		6C1A768A75FE3CB0CBC2C83B /* ExecutableLocator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExecutableLocator.swift; sourceTree = "<group>"; };
 		6E4970BDAE8A8F6F786D1F49 /* AppVersion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppVersion.swift; sourceTree = "<group>"; };
 		700604D5BEA9C6B3D7A4D0FD /* UpdateInstallerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateInstallerTests.swift; sourceTree = "<group>"; };
@@ -92,10 +110,16 @@
 		9C5CF24FBCA4671C54FD7452 /* PatchlyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PatchlyApp.swift; sourceTree = "<group>"; };
 		9EEB75D6A3842108410237F1 /* AppRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRowView.swift; sourceTree = "<group>"; };
 		9FA060E772F1F78705E61189 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		AC11BB66BFAF2B2DF257CB74 /* RunningAppReplacer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunningAppReplacer.swift; sourceTree = "<group>"; };
 		B128FE44C3D9E82E4849C1D8 /* UpdateInstaller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateInstaller.swift; sourceTree = "<group>"; };
 		B5CF0EBB12A9EA2694E8DE7B /* SparkleDirectInstallerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SparkleDirectInstallerTests.swift; sourceTree = "<group>"; };
+		B60AFE992161FD470E184CEA /* ElectronUpdateManifestParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElectronUpdateManifestParserTests.swift; sourceTree = "<group>"; };
+		BAA89791D4AC2D2388DDBC5F /* CLITool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLITool.swift; sourceTree = "<group>"; };
 		BBBB13B040B60426034E3306 /* VersionComparatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VersionComparatorTests.swift; sourceTree = "<group>"; };
+		C2F37DA29700A627B0196886 /* UpdateArchiveExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateArchiveExtractor.swift; sourceTree = "<group>"; };
+		D01636938115FBB1D71DFB09 /* SettingsGeneralTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsGeneralTab.swift; sourceTree = "<group>"; };
 		D2D058A1667501D51294FF80 /* UpdateSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateSource.swift; sourceTree = "<group>"; };
+		D414507C59EA7035C4CB6663 /* CLIToolScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLIToolScanner.swift; sourceTree = "<group>"; };
 		D4A4D6B5A6353473001D01F2 /* SparkleFeedChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SparkleFeedChecker.swift; sourceTree = "<group>"; };
 		DF50983CE36CBE57203F1405 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
 		E338D33905EBB62270483791 /* PatchlyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PatchlyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -139,9 +163,11 @@
 			isa = PBXGroup;
 			children = (
 				9EEB75D6A3842108410237F1 /* AppRowView.swift */,
+				68E83576EBE92C3E263C623B /* CLIToolRowView.swift */,
 				9030A1FBEE66DE4AB486E5D7 /* MenuBarContentView.swift */,
 				104D872DDEB98BB2E66049EF /* MenuBarLabelView.swift */,
 				85E08C3326B2247D912741CD /* SettingsCard.swift */,
+				D01636938115FBB1D71DFB09 /* SettingsGeneralTab.swift */,
 				642F0C625F8318A6F3321591 /* SettingsUpdatesTab.swift */,
 				3F875000E4B6BC8893602470 /* SettingsView.swift */,
 				76B553C0B220346509CBD25C /* SourceBadgeView.swift */,
@@ -154,11 +180,15 @@
 			children = (
 				6E4970BDAE8A8F6F786D1F49 /* AppVersion.swift */,
 				5E1B7F800CB93230E6BC2033 /* Collection+Chunked.swift */,
+				15C2498948BCB72E0EDD1337 /* ElectronDirectInstaller.swift */,
 				2DB91F060FFE31FCF107E397 /* ElectronUpdateConfigParser.swift */,
+				3E0B1E5AEAF3D8257F12969F /* ElectronUpdateManifestParser.swift */,
 				6C1A768A75FE3CB0CBC2C83B /* ExecutableLocator.swift */,
 				615E4AC58EA9440DEB740F79 /* ProcessRunner.swift */,
+				AC11BB66BFAF2B2DF257CB74 /* RunningAppReplacer.swift */,
 				7F6C5F92731D33BC7E452D7A /* SparkleAppcastParser.swift */,
 				8744FCA5D7FC285AC75AAF9F /* SparkleDirectInstaller.swift */,
+				C2F37DA29700A627B0196886 /* UpdateArchiveExtractor.swift */,
 				B128FE44C3D9E82E4849C1D8 /* UpdateInstaller.swift */,
 				45E9C05B0991D5D85B4EC4E3 /* VersionComparator.swift */,
 			);
@@ -169,7 +199,11 @@
 			isa = PBXGroup;
 			children = (
 				3AEEB32235E435898E2DF0DA /* ApplicationScannerTests.swift */,
+				40F0411BABDB06B956994AAE /* AppSettingsTests.swift */,
+				57F4F33972DF2BD3A3C9298C /* CLIToolScannerTests.swift */,
+				625E457D37A2F321BDAA722E /* ElectronDirectInstallerTests.swift */,
 				0E651F1203BD902FD91EE01D /* ElectronUpdateConfigParserTests.swift */,
+				B60AFE992161FD470E184CEA /* ElectronUpdateManifestParserTests.swift */,
 				28B2EFAB29773DA1D8EA9AB5 /* HomebrewCaskCheckerTests.swift */,
 				3BD94FB6F69FC7AA8488D13C /* MacAppStoreCheckerTests.swift */,
 				0839D6494DEC9F6C449ECD9A /* SparkleAppcastParserTests.swift */,
@@ -184,6 +218,7 @@
 			isa = PBXGroup;
 			children = (
 				3247E12A55E04A500DBDD008 /* ApplicationScanner.swift */,
+				D414507C59EA7035C4CB6663 /* CLIToolScanner.swift */,
 				089920C58FFAC1E76955FA9F /* UpdateAggregator.swift */,
 			);
 			path = Scanner;
@@ -235,6 +270,7 @@
 		E041C146CE7BF91A81B2D79F /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				BAA89791D4AC2D2388DDBC5F /* CLITool.swift */,
 				F7ADF49836A71C2D4835DB83 /* DiscoveredApp.swift */,
 				FB24B99BFC09F0AA925C472E /* ScannedApp.swift */,
 			);
@@ -353,11 +389,16 @@
 				330C574EFB8380EE3367860A /* AppUpdater.swift in Sources */,
 				3AB92857DAA45F6BB886BE2B /* AppVersion.swift in Sources */,
 				AFE19BE3A7D2D0BA7C856711 /* ApplicationScanner.swift in Sources */,
+				6FFA738242CD0429530A4E2E /* CLITool.swift in Sources */,
+				F99C1FF8670356D36E86EF8F /* CLIToolRowView.swift in Sources */,
+				1CC72B2F2F4488C1387E1ACD /* CLIToolScanner.swift in Sources */,
 				8755C357A1975FE254CDADBB /* CacheStore.swift in Sources */,
 				03B931F47BBFCB9BF34E4A0B /* Collection+Chunked.swift in Sources */,
 				C42C8BDC6BB6C71AC9C11339 /* DiscoveredApp.swift in Sources */,
+				DE66BD2880668A81745548DF /* ElectronDirectInstaller.swift in Sources */,
 				85DACC4A79B3C6D66748B89B /* ElectronUpdateChecker.swift in Sources */,
 				5105C903C25647D26B3CF4A7 /* ElectronUpdateConfigParser.swift in Sources */,
+				A8788AE06B15FEF385AFF09B /* ElectronUpdateManifestParser.swift in Sources */,
 				0165DE8969DB98643D1F11C2 /* ExecutableLocator.swift in Sources */,
 				C4BB916DEF8F1D9E247F129C /* HomebrewCaskChecker.swift in Sources */,
 				10C4ACEB18AD06541B4EBAB4 /* MacAppStoreChecker.swift in Sources */,
@@ -365,8 +406,10 @@
 				C241F883CB19224ADE9CCF36 /* MenuBarLabelView.swift in Sources */,
 				6AD0DE10BE173DA31DB695CF /* PatchlyApp.swift in Sources */,
 				F3C9E197390A3B9436571ECE /* ProcessRunner.swift in Sources */,
+				A5DD6AEBA387F241B1E53F55 /* RunningAppReplacer.swift in Sources */,
 				38F01061E85EB39D313903B1 /* ScannedApp.swift in Sources */,
 				22E6B717B3A0BA1A4B9EFA81 /* SettingsCard.swift in Sources */,
+				3E5A45BC181ACF98FDFCE79E /* SettingsGeneralTab.swift in Sources */,
 				338CEDD2FDB2F3BD241195CE /* SettingsUpdatesTab.swift in Sources */,
 				C489CDA9D591D7DAD311521B /* SettingsView.swift in Sources */,
 				954A506E96234FAA8F0AA76C /* SourceBadgeView.swift in Sources */,
@@ -374,6 +417,7 @@
 				A4B7BED18E2121E2EE152E07 /* SparkleDirectInstaller.swift in Sources */,
 				CFF5AA9B7D24F726AB12B082 /* SparkleFeedChecker.swift in Sources */,
 				2B4DD6AAC8DE3CFAE6450268 /* UpdateAggregator.swift in Sources */,
+				54EBF41F401ED2A34D0DDDA2 /* UpdateArchiveExtractor.swift in Sources */,
 				F13AC3DC0110D67780BACD3E /* UpdateInstaller.swift in Sources */,
 				BCDEEE537A66606C12F7152C /* UpdateSource.swift in Sources */,
 				7C7D5F30DF1957E7FF83A80C /* VersionComparator.swift in Sources */,
@@ -384,8 +428,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BD24C968BE44562492B3A003 /* AppSettingsTests.swift in Sources */,
 				8B776813435C6BF51050DD4E /* ApplicationScannerTests.swift in Sources */,
+				8AAB88480698A39689BF600D /* CLIToolScannerTests.swift in Sources */,
+				C157A65F03F1DC935DC81E02 /* ElectronDirectInstallerTests.swift in Sources */,
 				245B30B5A7C9E06B26A339A4 /* ElectronUpdateConfigParserTests.swift in Sources */,
+				15BB36ACADCDF39905DC6543 /* ElectronUpdateManifestParserTests.swift in Sources */,
 				765A63C58CD2B12D07EA28CD /* HomebrewCaskCheckerTests.swift in Sources */,
 				FB1089ACE31250751A5015F9 /* MacAppStoreCheckerTests.swift in Sources */,
 				3CF72A49788B4F79F71ADE3B /* SparkleAppcastParserTests.swift in Sources */,

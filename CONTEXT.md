@@ -14,7 +14,7 @@ Patchly is a menu-bar-only app with no persistent Dock icon.
 
 ## Language
 
-**Scanned App**: An application bundle discovered under `/Applications`, `/Applications/Utilities`, or `~/Applications`, together with the identity and version fields read from its `Info.plist`.
+**Scanned App**: An application bundle discovered under `/Applications`, `/Applications/Utilities`, or `~/Applications` — either directly in one of those, or one level into a subfolder of one of those — together with the identity and version fields read from its `Info.plist`.
 _Avoid_: Installed app, package
 
 **Update Source**: The origin Patchly attributes a Scanned App to for update-checking purposes: Mac App Store, Homebrew Cask, Electron, or Sparkle Feed.
@@ -56,6 +56,12 @@ _Avoid_: Install method (that term is reserved for Update Source, the detection 
 **Selection**: The set of Scanned Apps the user has checked in the dropdown for a batch Update Action, independent of Update Status or Update Source.
 _Avoid_: Multi-select (describes the UI gesture, not the domain concept)
 
+**CLI Tool**: A detected developer command-line tool (e.g. git, node, npm) shown in the dropdown with its installed version; display-only, with no Update Source, Update Status, or Update Action — there is no safe universal way to check or install updates for arbitrary CLI tools.
+_Avoid_: CLI app, command-line app, Scanned App (a wholly separate concept — a CLI Tool is never attributed an Update Source or Update Status)
+
+**Search**: A case-insensitive substring filter on Scanned App and CLI Tool names, applied only to what's currently displayed in the dropdown.
+_Avoid_: Filter (Search is the user-typed text specifically; it never changes the Cache Snapshot, sort order, or Refresh behavior)
+
 ## Relationships
 
 - A Scanned App with a Mac App Store receipt is always attributed to the Mac App Store Source, even if it would also match a Homebrew Cask or declare a `SUFeedURL`
@@ -91,12 +97,22 @@ _Avoid_: Multi-select (describes the UI gesture, not the domain concept)
 - A failed Update Action sets that Scanned App's Update Status to Check Failed with the failure reason, reusing the existing Check Failed UI rather than a separate error surface
 - After a batch of Update Actions completes with at least one success — of any kind, including the fallback activate-only path — Patchly runs a full Refresh, since a Homebrew/Mac App Store install can change more than just the installed app (e.g. local tap metadata)
 - A Sparkle Feed Source app's direct-install Update Action quits that app first if it's running, so its bundle isn't replaced out from under a live process; it escalates from a graceful to a forced quit, and gives up (Check Failed) rather than replacing files under a process that won't exit
+- Scanning each root directory also looks one level into any subfolder that isn't itself a `.app` (e.g. `/Applications/Development`), since users commonly organize `/Applications` that way; it never looks further than that one level, and never looks inside a matched `.app` bundle's own contents (a helper `.app` nested in another app's `Contents/Frameworks` is not a separate Scanned App)
+- A row's Update button reads "Open to Update" instead of "Update" whenever its Update Action is `.launchApp` (always true for the Electron Source, and the Sparkle Feed Source's no-signature fallback) — that action only activates the app and hands off to its own updater, so the label says what actually happens instead of promising a direct install Patchly isn't doing
 - Patchly makes no changes to any other app's files outside an explicit, user-initiated Update Action or the `brew install mas` action
+- An Electron Source app's Update Action gets a direct-install Update Action when its `latest-mac[-arm64].yml` manifest (published by both the `generic` and `github` providers) includes both a `path` and a `sha512` field: Patchly downloads that artifact, verifies its sha512 checksum, verifies its code signature is valid (`codesign --verify --deep --strict`), and verifies its Team Identifier and bundle identifier both match the already-installed app — only then does it quit the app if running, replace its bundle, and relaunch it, the same replace/relaunch mechanics as the Sparkle Feed Source's direct install
+- An Electron Source app missing a `path`, a `sha512`, or the manifest itself falls back to activating the app so its own updater runs, same as the Sparkle Feed Source's no-signature fallback — this is not an error, just a coverage gap for apps whose manifest doesn't publish everything needed to verify
+- An Electron Source app's direct-install verification failing (checksum, code signature, Team Identifier, or bundle identifier mismatch) is Check Failed, never a reason to fall back to activating the app — same reasoning as the Sparkle Feed Source: a failed verification means the download shouldn't be trusted, not that Patchly should try something else with it
+- Both direct-install Update Actions (Sparkle Feed Source, Electron Source) require macOS's "App Management" permission (System Settings → Privacy & Security → App Management) to actually replace another app's bundle — there's no API to request this proactively; macOS blocks the first write attempt and only then lists Patchly there for the user to grant. A replace blocked by this shows an actionable Check Failed reason telling the user exactly where to grant it, instead of the raw "operation not permitted" OS error
 - Patchly self-updates via Sparkle, checked separately from the Refresh cycle: automatically (user-configurable in Settings) and on manual request from the menu bar dropdown or Settings; this never affects Scanned Apps or the Cache Snapshot
+- CLI Tools are detected from a fixed list of common developer tool names, each resolved to a path by checking common install directories directly, never inherited `$PATH` — the same reasoning `ExecutableLocator` already applies to `brew`/`mas`, since GUI apps launched via LaunchServices don't get the user's shell rc file customizations
+- A name from the fixed list that doesn't resolve to a path, or resolves but fails to run or report a version, is simply omitted from the CLI Tools list — absence is normal, never an error and never a status, since CLI Tools have no Update Status at all
+- CLI Tools are only detected and shown when the user turns on the Show CLI Tools setting; detection is 100% local and read-only (no network calls), so it's folded into the same Refresh, but skipped entirely when the setting is off
+- A CLI Tool row has no checkbox, no Source Badge, and no Update Action — Selection and Update Action never apply to CLI Tools
+- The auto-Refresh interval is user-configurable from Settings (1/3/6/12/24 hours), backed by the same `refreshIntervalSeconds` the timer already reads
 
 ## Flagged ambiguities
 
-- Whether Patchly should also scan one level of subfolders inside `/Applications` (some vendors nest `.app` bundles) is unresolved; v1 only scans top-level `.app` bundles in each root directory
 - Activating an app as the fallback Update Action doesn't guarantee an update actually happens — the app's own updater might not check immediately, or the user might quit it first. Patchly has no way to confirm the update completed; the Refresh that follows (every successful Update Action triggers one, not just verified ones) can easily just report the same old version if the app's own update hasn't landed yet by then
 - The Electron Source's `provider: github` check uses the unauthenticated GitHub Releases API (60 requests/hour per IP); with many GitHub-provider apps installed and frequent Refreshes this could get rate-limited — accepted for now since it degrades to Check Failed rather than breaking anything, revisit only if it becomes a real problem
 - Many Electron apps ship a custom updater with no `app-update.yml` at all (seen firsthand: Discord ships its own native updater module) and are never attributed to the Electron Source — this is an inherent coverage gap, not a bug to chase

@@ -1,8 +1,13 @@
 import Foundation
 
 /// Enumerates `/Applications`, `/Applications/Utilities`, and `~/Applications` for
-/// top-level `.app` bundles, reading each one's Info.plist. Explicitly skips
-/// `/System/Applications` — OS-managed, not user-updatable. See CONTEXT.md.
+/// `.app` bundles, reading each one's Info.plist. Also looks one level into any
+/// non-`.app` subfolder of each root directory (e.g. `/Applications/Development`),
+/// since users commonly organize `/Applications` into subfolders — but never
+/// descends further than that, and never looks inside a matched `.app` bundle
+/// itself (those are also directories, but their contents aren't more apps to
+/// scan). Explicitly skips `/System/Applications` — OS-managed, not
+/// user-updatable. See CONTEXT.md.
 actor ApplicationScanner {
     private let rootDirectories: [URL]
 
@@ -39,12 +44,26 @@ actor ApplicationScanner {
         let fileManager = FileManager.default
         guard let entries = try? fileManager.contentsOfDirectory(
             at: directory,
-            includingPropertiesForKeys: nil,
+            includingPropertiesForKeys: [.isDirectoryKey],
             options: [.skipsHiddenFiles]
         ) else {
             return []
         }
-        return entries.filter { $0.pathExtension == "app" }
+
+        var results: [URL] = []
+        for entry in entries {
+            if entry.pathExtension == "app" {
+                results.append(entry)
+            } else if (try? entry.resourceValues(forKeys: [.isDirectoryKey]))?.isDirectory == true {
+                let nested = (try? fileManager.contentsOfDirectory(
+                    at: entry,
+                    includingPropertiesForKeys: nil,
+                    options: [.skipsHiddenFiles]
+                )) ?? []
+                results.append(contentsOf: nested.filter { $0.pathExtension == "app" })
+            }
+        }
+        return results
     }
 
     private func readApp(at bundleURL: URL) -> DiscoveredApp? {

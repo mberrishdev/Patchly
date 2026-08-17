@@ -4,20 +4,24 @@ import SwiftUI
 struct MenuBarContentView: View {
     @ObservedObject var appState: AppState
     @ObservedObject var updater: AppUpdater
+    @ObservedObject var settings: AppSettings
     @Environment(\.openSettings) private var openSettings
     @Environment(\.dismiss) private var dismiss
     @State private var showBatchUpdateConfirm = false
+    @State private var searchText = ""
 
     var body: some View {
         VStack(spacing: 0) {
             header
             Divider()
-            if appState.sortedApps.isEmpty {
+            searchField
+            Divider()
+            if filteredApps.isEmpty && filteredCLITools.isEmpty {
                 emptyState
             } else {
                 ScrollView {
                     LazyVStack(spacing: 0) {
-                        ForEach(appState.sortedApps) { app in
+                        ForEach(filteredApps) { app in
                             AppRowView(
                                 app: app,
                                 isSelected: app.updateStatus.isUpdateAvailable ? selectionBinding(for: app) : nil,
@@ -30,6 +34,14 @@ struct MenuBarContentView: View {
                                 }
                             )
                             Divider()
+                        }
+
+                        if !filteredCLITools.isEmpty {
+                            cliToolsHeader
+                            ForEach(filteredCLITools) { tool in
+                                CLIToolRowView(tool: tool)
+                                Divider()
+                            }
                         }
                     }
                 }
@@ -47,6 +59,47 @@ struct MenuBarContentView: View {
             footer
         }
         .frame(width: 340)
+    }
+
+    private var filteredApps: [ScannedApp] {
+        guard !searchText.isEmpty else { return appState.sortedApps }
+        return appState.sortedApps.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
+    }
+
+    private var filteredCLITools: [CLITool] {
+        guard settings.showsCLITools else { return [] }
+        guard !searchText.isEmpty else { return appState.cliTools }
+        return appState.cliTools.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
+    }
+
+    private var searchField: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "magnifyingglass")
+                .foregroundStyle(.secondary)
+            TextField("Search", text: $searchText)
+                .textFieldStyle(.plain)
+            if !searchText.isEmpty {
+                Button {
+                    searchText = ""
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 6)
+    }
+
+    private var cliToolsHeader: some View {
+        Text("CLI Tools")
+            .font(.caption2.weight(.semibold))
+            .foregroundStyle(.secondary)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 12)
+            .padding(.top, 8)
+            .padding(.bottom, 4)
     }
 
     private func selectionBinding(for app: ScannedApp) -> Binding<Bool> {
@@ -119,10 +172,17 @@ struct MenuBarContentView: View {
     }
 
     private var emptyState: some View {
-        Text(appState.isRefreshing ? "Scanning applications…" : "No applications found")
+        Text(emptyStateText)
             .font(.callout)
             .foregroundStyle(.secondary)
             .padding(24)
+    }
+
+    private var emptyStateText: String {
+        if !searchText.isEmpty {
+            return "No matches"
+        }
+        return appState.isRefreshing ? "Scanning applications…" : "No applications found"
     }
 
     private var footer: some View {
@@ -174,7 +234,12 @@ struct MenuBarContentView: View {
 
     private var listHeight: CGFloat {
         let estimatedRowHeight: CGFloat = 44
-        let contentHeight = CGFloat(appState.sortedApps.count) * estimatedRowHeight
+        let estimatedSectionHeaderHeight: CGFloat = 22
+        var contentHeight = CGFloat(filteredApps.count) * estimatedRowHeight
+        if !filteredCLITools.isEmpty {
+            contentHeight += estimatedSectionHeaderHeight
+            contentHeight += CGFloat(filteredCLITools.count) * estimatedRowHeight
+        }
         return min(max(contentHeight, estimatedRowHeight), 420)
     }
 
@@ -187,5 +252,6 @@ struct MenuBarContentView: View {
 }
 
 #Preview {
-    MenuBarContentView(appState: AppState(settings: AppSettings()), updater: AppUpdater())
+    let settings = AppSettings()
+    return MenuBarContentView(appState: AppState(settings: settings), updater: AppUpdater(), settings: settings)
 }

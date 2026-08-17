@@ -24,9 +24,19 @@ enum UpdateAction: Codable, Hashable, Sendable {
     /// when the app or its appcast doesn't publish everything needed to
     /// verify. See CONTEXT.md.
     case installSparkleUpdate(enclosureURL: URL, edSignatureBase64: String, publicKeyBase64: String)
-    /// Electron apps have no CLI handoff and no equivalent safe verification
-    /// path — Patchly activates the app and its own linked updater takes
-    /// over. Also the Sparkle Feed Source's fallback when it can't verify.
+    /// Patchly downloads the update archive electron-builder's
+    /// `latest-mac[-arm64].yml` manifest points at, verifies it (sha512
+    /// checksum, code signature, and a Team Identifier + bundle identifier
+    /// match against the already-installed app), and — only if all of that
+    /// succeeds — replaces the app itself. Falls back to `.launchApp` when
+    /// that manifest isn't published (an older electron-builder version, or
+    /// a hand-rolled feed) and there's nothing to verify a download against.
+    /// See CONTEXT.md.
+    case installElectronUpdate(archiveURL: URL, expectedSHA512Base64: String)
+    /// Electron's fallback when its manifest doesn't publish enough to
+    /// verify a download, and the Sparkle Feed Source's fallback when it
+    /// can't verify an appcast item — Patchly activates the app and its own
+    /// linked updater takes over instead.
     case launchApp
 }
 

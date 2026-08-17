@@ -18,14 +18,14 @@ struct PatchlyApp: App {
 
     var body: some Scene {
         MenuBarExtra {
-            MenuBarContentView(appState: appState, updater: updater)
+            MenuBarContentView(appState: appState, updater: updater, settings: settings)
         } label: {
             MenuBarLabelView(badgeCount: settings.showsBadgeCount ? appState.badgeCount : 0)
         }
         .menuBarExtraStyle(.window)
 
         Settings {
-            SettingsView(updater: updater)
+            SettingsView(updater: updater, settings: settings)
         }
     }
 }

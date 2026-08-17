@@ -7,11 +7,6 @@ enum SparkleDirectInstallError: Error, LocalizedError, Equatable {
     case invalidPublicKeyEncoding
     case signatureVerificationFailed
     case downloadFailed(String)
-    case unsupportedArchiveType(String)
-    case extractionFailed(String)
-    case noAppFoundInArchive
-    case couldNotQuitRunningApp
-    case replaceFailed(String)
 
     var errorDescription: String? {
         switch self {
@@ -19,11 +14,6 @@ enum SparkleDirectInstallError: Error, LocalizedError, Equatable {
         case .invalidPublicKeyEncoding: "the app's SUPublicEDKey isn't a valid Ed25519 key"
         case .signatureVerificationFailed: "signature verification failed — the download doesn't match what the developer signed"
         case .downloadFailed(let reason): "download failed: \(reason)"
-        case .unsupportedArchiveType(let ext): "unsupported update archive type: .\(ext)"
-        case .extractionFailed(let reason): "couldn't extract the update: \(reason)"
-        case .noAppFoundInArchive: "the downloaded update didn't contain an .app"
-        case .couldNotQuitRunningApp: "couldn't quit the running app to replace it"
-        case .replaceFailed(let reason): "couldn't install the update: \(reason)"
         }
     }
 }
@@ -38,10 +28,16 @@ enum SparkleDirectInstallError: Error, LocalizedError, Equatable {
 struct SparkleDirectInstaller: Sendable {
     private let session: URLSession
     private let processRunner: ProcessRunning
+    private let replacer: RunningAppReplacer
 
-    init(session: URLSession = SparkleDirectInstaller.makeSession(), processRunner: ProcessRunning = ProcessRunner()) {
+    init(
+        session: URLSession = SparkleDirectInstaller.makeSession(),
+        processRunner: ProcessRunning = ProcessRunner(),
+        replacer: RunningAppReplacer = RunningAppReplacer()
+    ) {
         self.session = session
         self.processRunner = processRunner
+        self.replacer = replacer
     }
 
     private static func makeSession() -> URLSession {
@@ -71,11 +67,11 @@ struct SparkleDirectInstaller: Sendable {
             let downloadedFileURL = workDir.appendingPathComponent(enclosureURL.lastPathComponent)
             try fileData.write(to: downloadedFileURL)
 
-            let extractedAppURL = try await extract(downloadedFileURL: downloadedFileURL, workDir: workDir)
+            let extractedAppURL = try await UpdateArchiveExtractor.extract(downloadedFileURL: downloadedFileURL, workDir: workDir, processRunner: processRunner)
 
-            try await quitIfRunning(bundlePath: targetBundlePath)
-            try replace(targetBundlePath: targetBundlePath, withAppAt: extractedAppURL)
-            await relaunch(bundlePath: targetBundlePath)
+            try await replacer.quitIfRunning(bundlePath: targetBundlePath)
+            try replacer.replace(targetBundlePath: targetBundlePath, withAppAt: extractedAppURL)
+            await replacer.relaunch(bundlePath: targetBundlePath)
 
             return UpdateInstallResult(bundlePath: targetBundlePath, succeeded: true, failureReason: nil)
         } catch {
@@ -120,110 +116,4 @@ struct SparkleDirectInstaller: Sendable {
         return data
     }
 
-    private func extract(downloadedFileURL: URL, workDir: URL) async throws -> URL {
-        let extractDir = workDir.appendingPathComponent("extracted", isDirectory: true)
-        try FileManager.default.createDirectory(at: extractDir, withIntermediateDirectories: true)
-
-        switch downloadedFileURL.pathExtension.lowercased() {
-        case "zip":
-            // ditto (not unzip) preserves resource forks / extended
-            // attributes / the code signature intact.
-            let result = try await processRunner.run(
-                executablePath: "/usr/bin/ditto",
-                arguments: ["-x", "-k", downloadedFileURL.path, extractDir.path],
-                timeout: 300
-            )
-            guard result.succeeded else {
-                throw SparkleDirectInstallError.extractionFailed(result.standardError)
-            }
-            return try Self.findApp(in: extractDir)
-
-        case "dmg":
-            let mountDir = workDir.appendingPathComponent("mount", isDirectory: true)
-            try FileManager.default.createDirectory(at: mountDir, withIntermediateDirectories: true)
-            let attach = try await processRunner.run(
-                executablePath: "/usr/bin/hdiutil",
-                arguments: ["attach", downloadedFileURL.path, "-nobrowse", "-readonly", "-mountpoint", mountDir.path],
-                timeout: 120
-            )
-            guard attach.succeeded else {
-                throw SparkleDirectInstallError.extractionFailed(attach.standardError)
-            }
-            do {
-                let appInDMG = try Self.findApp(in: mountDir)
-                let destAppURL = extractDir.appendingPathComponent(appInDMG.lastPathComponent)
-                let copy = try await processRunner.run(
-                    executablePath: "/usr/bin/ditto",
-                    arguments: [appInDMG.path, destAppURL.path],
-                    timeout: 300
-                )
-                _ = try? await processRunner.run(executablePath: "/usr/bin/hdiutil", arguments: ["detach", mountDir.path, "-quiet"], timeout: 30)
-                guard copy.succeeded else {
-                    throw SparkleDirectInstallError.extractionFailed(copy.standardError)
-                }
-                return destAppURL
-            } catch {
-                _ = try? await processRunner.run(executablePath: "/usr/bin/hdiutil", arguments: ["detach", mountDir.path, "-quiet"], timeout: 30)
-                throw error
-            }
-
-        case let ext:
-            throw SparkleDirectInstallError.unsupportedArchiveType(ext)
-        }
-    }
-
-    private static func findApp(in directory: URL) throws -> URL {
-        guard let entries = try? FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil),
-              let appURL = entries.first(where: { $0.pathExtension == "app" })
-        else {
-            throw SparkleDirectInstallError.noAppFoundInArchive
-        }
-        return appURL
-    }
-
-    /// Quits the app if it's currently running, so its bundle isn't being
-    /// replaced out from under a live process. Tries a graceful terminate
-    /// first, escalates to a force-terminate, and gives up rather than
-    /// replacing files under a process that won't exit.
-    @MainActor
-    private func quitIfRunning(bundlePath: String) async throws {
-        let bundleURL = URL(fileURLWithPath: bundlePath)
-        guard let running = NSWorkspace.shared.runningApplications.first(where: { $0.bundleURL == bundleURL }) else {
-            return
-        }
-
-        running.terminate()
-        if await waitForTermination(of: running, timeout: 10) { return }
-
-        running.forceTerminate()
-        if await waitForTermination(of: running, timeout: 5) { return }
-
-        throw SparkleDirectInstallError.couldNotQuitRunningApp
-    }
-
-    @MainActor
-    private func waitForTermination(of app: NSRunningApplication, timeout: TimeInterval) async -> Bool {
-        let deadline = Date().addingTimeInterval(timeout)
-        while !app.isTerminated, Date() < deadline {
-            try? await Task.sleep(nanoseconds: 200_000_000)
-        }
-        return app.isTerminated
-    }
-
-    private func replace(targetBundlePath: String, withAppAt newAppURL: URL) throws {
-        let targetURL = URL(fileURLWithPath: targetBundlePath)
-        do {
-            _ = try FileManager.default.replaceItemAt(targetURL, withItemAt: newAppURL)
-        } catch {
-            throw SparkleDirectInstallError.replaceFailed(error.localizedDescription)
-        }
-    }
-
-    @MainActor
-    private func relaunch(bundlePath: String) async {
-        _ = try? await NSWorkspace.shared.openApplication(
-            at: URL(fileURLWithPath: bundlePath),
-            configuration: NSWorkspace.OpenConfiguration()
-        )
-    }
 }

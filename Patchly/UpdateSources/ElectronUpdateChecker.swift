@@ -47,17 +47,23 @@ private func checkSingle(_ app: DiscoveredApp, session: URLSession) async -> Upd
 
     do {
         let latest: String
+        let action: UpdateAction?
+
         switch config.provider {
         case .github(let owner, let repo):
-            latest = try await fetchLatestGitHubTag(owner: owner, repo: repo, session: session)
+            let release = try await fetchLatestGitHubRelease(owner: owner, repo: repo, session: session)
+            latest = release.version
+            action = await directInstallAction(forGitHubRelease: release, session: session)
         case .generic(let baseURL):
-            latest = try await fetchLatestGenericVersion(baseURL: baseURL, session: session)
+            let manifest = try await fetchLatestGenericManifest(baseURL: baseURL, session: session)
+            latest = manifest.version
+            action = directInstallAction(forGenericManifest: manifest, baseURL: baseURL)
         case .unsupported(let providerName):
             return UpdateCheckResult(status: .checkFailed(reason: "unsupported update provider: \(providerName)"))
         }
 
         if VersionComparator.isVersion(latest, greaterThan: app.installedVersion) {
-            return UpdateCheckResult(status: .updateAvailable(latestVersion: latest), action: .launchApp)
+            return UpdateCheckResult(status: .updateAvailable(latestVersion: latest), action: action ?? .launchApp)
         }
         return UpdateCheckResult(status: .upToDate)
     } catch {
@@ -79,15 +85,32 @@ private enum ElectronUpdateCheckerError: Error, LocalizedError {
     }
 }
 
-private struct GitHubReleaseResponse: Decodable {
-    let tagName: String
+private struct GitHubReleaseAsset: Decodable {
+    let name: String
+    let browserDownloadURL: URL
 
     enum CodingKeys: String, CodingKey {
-        case tagName = "tag_name"
+        case name
+        case browserDownloadURL = "browser_download_url"
     }
 }
 
-private func fetchLatestGitHubTag(owner: String, repo: String, session: URLSession) async throws -> String {
+private struct GitHubReleaseResponse: Decodable {
+    let tagName: String
+    let assets: [GitHubReleaseAsset]
+
+    enum CodingKeys: String, CodingKey {
+        case tagName = "tag_name"
+        case assets
+    }
+}
+
+private struct GitHubRelease {
+    let version: String
+    let assets: [GitHubReleaseAsset]
+}
+
+private func fetchLatestGitHubRelease(owner: String, repo: String, session: URLSession) async throws -> GitHubRelease {
     guard let url = URL(string: "https://api.github.com/repos/\(owner)/\(repo)/releases/latest") else {
         throw ElectronUpdateCheckerError.invalidURL
     }
@@ -99,14 +122,46 @@ private func fetchLatestGitHubTag(owner: String, repo: String, session: URLSessi
         throw ElectronUpdateCheckerError.badResponse
     }
     let release = try JSONDecoder().decode(GitHubReleaseResponse.self, from: data)
-    return release.tagName.hasPrefix("v") ? String(release.tagName.dropFirst()) : release.tagName
+    let version = release.tagName.hasPrefix("v") ? String(release.tagName.dropFirst()) : release.tagName
+    return GitHubRelease(version: version, assets: release.assets)
+}
+
+/// electron-builder publishes a `latest-mac-arm64.yml`/`latest-mac.yml`
+/// manifest as a release asset alongside the actual update archive, even for
+/// the `github` provider — the same manifest the `generic` provider serves
+/// directly over HTTP, just attached to the release instead. Fetching it
+/// gives the sha512 checksum `ElectronDirectInstaller` needs. When it isn't
+/// published, Patchly can't verify a download safely — a coverage gap, not
+/// an error, so this just returns nil and the caller falls back to
+/// `.launchApp`.
+private func directInstallAction(forGitHubRelease release: GitHubRelease, session: URLSession) async -> UpdateAction? {
+    guard let manifestAsset = release.assets.first(where: { $0.name == "latest-mac-arm64.yml" })
+        ?? release.assets.first(where: { $0.name == "latest-mac.yml" })
+    else { return nil }
+
+    guard let (data, response) = try? await session.data(from: manifestAsset.browserDownloadURL),
+          let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200,
+          let text = String(data: data, encoding: .utf8),
+          let manifest = ElectronUpdateManifestParser.parse(text),
+          let path = manifest.path, let sha512 = manifest.sha512,
+          let archiveAsset = release.assets.first(where: { $0.name == path })
+    else { return nil }
+
+    return .installElectronUpdate(archiveURL: archiveAsset.browserDownloadURL, expectedSHA512Base64: sha512)
+}
+
+private func directInstallAction(forGenericManifest manifest: ElectronUpdateManifest, baseURL: String) -> UpdateAction? {
+    guard let path = manifest.path, let sha512 = manifest.sha512, let base = URL(string: baseURL) else {
+        return nil
+    }
+    return .installElectronUpdate(archiveURL: base.appendingPathComponent(path), expectedSHA512Base64: sha512)
 }
 
 /// electron-builder publishes per-arch manifests (`latest-mac-arm64.yml`) as
 /// well as a combined one (`latest-mac.yml`) — try the arch-specific file
 /// first since it's the one that actually applies to an Apple-Silicon-only
 /// app, falling back to the combined manifest.
-private func fetchLatestGenericVersion(baseURL: String, session: URLSession) async throws -> String {
+private func fetchLatestGenericManifest(baseURL: String, session: URLSession) async throws -> ElectronUpdateManifest {
     guard let base = URL(string: baseURL) else {
         throw ElectronUpdateCheckerError.invalidURL
     }
@@ -118,26 +173,15 @@ private func fetchLatestGenericVersion(baseURL: String, session: URLSession) asy
             let (data, response) = try await session.data(from: url)
             guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200,
                   let text = String(data: data, encoding: .utf8),
-                  let version = extractVersion(fromYAML: text)
+                  let manifest = ElectronUpdateManifestParser.parse(text)
             else {
                 lastError = ElectronUpdateCheckerError.badResponse
                 continue
             }
-            return version
+            return manifest
         } catch {
             lastError = error
         }
     }
     throw lastError
 }
-
-private func extractVersion(fromYAML text: String) -> String? {
-    for line in text.split(separator: "\n") {
-        let trimmed = line.trimmingCharacters(in: .whitespaces)
-        guard trimmed.hasPrefix("version:") else { continue }
-        let value = trimmed.dropFirst("version:".count).trimmingCharacters(in: .whitespaces)
-        return value.isEmpty ? nil : value
-    }
-    return nil
-}
-

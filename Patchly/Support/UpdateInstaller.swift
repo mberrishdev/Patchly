@@ -10,25 +10,30 @@ struct UpdateInstallResult: Sendable {
 /// Runs a Scanned App's `UpdateAction`. Homebrew Cask and Mac App Store apps
 /// are upgraded directly via their CLI (`brew upgrade --cask`, `mas upgrade`)
 /// — both already handle download/verify/install safely. Sparkle and
-/// Electron apps have no such handoff, so Patchly only activates the app and
-/// lets its own linked updater take over; it never downloads or replaces
-/// another app's bundle itself. See CONTEXT.md.
+/// Electron apps get a direct install too when there's enough published to
+/// verify one safely (see `SparkleDirectInstaller`, `ElectronDirectInstaller`);
+/// otherwise Patchly falls back to just activating the app and letting its
+/// own linked updater take over, never downloading or replacing a bundle it
+/// couldn't verify. See CONTEXT.md.
 struct UpdateInstaller: Sendable {
     private let processRunner: ProcessRunning
     private let brewPath: String?
     private let masPath: String?
     private let sparkleDirectInstaller: SparkleDirectInstaller
+    private let electronDirectInstaller: ElectronDirectInstaller
 
     init(
         processRunner: ProcessRunning = ProcessRunner(),
         brewPath: String? = ExecutableLocator.locateBrew(),
         masPath: String? = ExecutableLocator.locateMas(),
-        sparkleDirectInstaller: SparkleDirectInstaller = SparkleDirectInstaller()
+        sparkleDirectInstaller: SparkleDirectInstaller = SparkleDirectInstaller(),
+        electronDirectInstaller: ElectronDirectInstaller = ElectronDirectInstaller()
     ) {
         self.processRunner = processRunner
         self.brewPath = brewPath
         self.masPath = masPath
         self.sparkleDirectInstaller = sparkleDirectInstaller
+        self.electronDirectInstaller = electronDirectInstaller
     }
 
     func install(_ app: ScannedApp) async -> UpdateInstallResult {
@@ -57,6 +62,13 @@ struct UpdateInstaller: Sendable {
                 edSignatureBase64: edSignatureBase64,
                 publicKeyBase64: publicKeyBase64,
                 targetBundlePath: app.bundlePath
+            )
+        case .installElectronUpdate(let archiveURL, let expectedSHA512Base64):
+            return await electronDirectInstaller.install(
+                archiveURL: archiveURL,
+                expectedSHA512Base64: expectedSHA512Base64,
+                targetBundlePath: app.bundlePath,
+                expectedBundleIdentifier: app.bundleIdentifier
             )
         case .launchApp:
             return await launchApp(bundlePath: app.bundlePath, source: app.source, bundleIdentifier: app.bundleIdentifier)

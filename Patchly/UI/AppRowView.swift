@@ -49,6 +49,16 @@ struct AppRowView: View {
         }
     }
 
+    /// `.launchApp` doesn't install anything itself — it just activates the
+    /// app so its own updater takes over (always true for Electron, and
+    /// Sparkle's fallback when it can't verify a signature). "Update" would
+    /// overpromise there, so it reads "Open to Update" instead, matching
+    /// what actually happens: Patchly opens the app, the app's own updater
+    /// decides what happens next, on its own schedule.
+    private var updateButtonTitle: String {
+        app.updateAction == .launchApp ? "Open to Update" : "Update"
+    }
+
     private var versionText: String {
         switch app.updateStatus {
         case .updateAvailable(let latest):
@@ -65,7 +75,7 @@ struct AppRowView: View {
             if isInstalling {
                 ProgressView().controlSize(.small)
             } else {
-                Button("Update", action: onUpdate)
+                Button(updateButtonTitle, action: onUpdate)
                     .buttonStyle(.plain)
                     .font(.caption)
                     .foregroundStyle(.blue)

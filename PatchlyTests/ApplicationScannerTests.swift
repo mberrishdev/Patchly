@@ -79,9 +79,65 @@ final class ApplicationScannerTests: XCTestCase {
         XCTAssertTrue(apps.isEmpty)
     }
 
+    func testDiscoversAppNestedOneLevelInASubfolder() async throws {
+        // Real bug report: Docker, Rider, and VS Code all live in a
+        // self-organized "/Applications/Development" subfolder and were
+        // never found because the scanner only looked at the top level.
+        let subfolder = tempDirectory.appendingPathComponent("Development", isDirectory: true)
+        try FileManager.default.createDirectory(at: subfolder, withIntermediateDirectories: true)
+        try makeFakeApp(
+            named: "Nested.app",
+            in: subfolder,
+            infoPlist: ["CFBundleName": "Nested", "CFBundleShortVersionString": "1.0"]
+        )
+
+        let scanner = ApplicationScanner(rootDirectories: [tempDirectory])
+        let apps = await scanner.scanInstalledApps()
+
+        XCTAssertEqual(apps.map(\.name), ["Nested"])
+    }
+
+    func testDoesNotRecurseMoreThanOneLevelDeep() async throws {
+        let tooDeep = tempDirectory
+            .appendingPathComponent("Development", isDirectory: true)
+            .appendingPathComponent("SubTool", isDirectory: true)
+        try FileManager.default.createDirectory(at: tooDeep, withIntermediateDirectories: true)
+        try makeFakeApp(
+            named: "TooDeep.app",
+            in: tooDeep,
+            infoPlist: ["CFBundleName": "TooDeep", "CFBundleShortVersionString": "1.0"]
+        )
+
+        let scanner = ApplicationScanner(rootDirectories: [tempDirectory])
+        let apps = await scanner.scanInstalledApps()
+
+        XCTAssertTrue(apps.isEmpty)
+    }
+
+    func testDoesNotTreatAnAppBundlesOwnContentsAsASubfolderToScan() async throws {
+        // A nested helper .app inside another app's Contents/ (e.g. Electron's
+        // "Foo Helper.app") must never surface as its own Scanned App.
+        let appURL = try makeFakeApp(
+            named: "Outer.app",
+            infoPlist: ["CFBundleName": "Outer", "CFBundleShortVersionString": "1.0"]
+        )
+        let frameworksURL = appURL.appendingPathComponent("Contents/Frameworks", isDirectory: true)
+        try FileManager.default.createDirectory(at: frameworksURL, withIntermediateDirectories: true)
+        try makeFakeApp(
+            named: "Helper.app",
+            in: frameworksURL,
+            infoPlist: ["CFBundleName": "Helper", "CFBundleShortVersionString": "1.0"]
+        )
+
+        let scanner = ApplicationScanner(rootDirectories: [tempDirectory])
+        let apps = await scanner.scanInstalledApps()
+
+        XCTAssertEqual(apps.map(\.name), ["Outer"])
+    }
+
     @discardableResult
-    private func makeFakeApp(named name: String, infoPlist: [String: Any]) throws -> URL {
-        let appURL = tempDirectory.appendingPathComponent(name, isDirectory: true)
+    private func makeFakeApp(named name: String, in directory: URL? = nil, infoPlist: [String: Any]) throws -> URL {
+        let appURL = (directory ?? tempDirectory).appendingPathComponent(name, isDirectory: true)
         let contentsURL = appURL.appendingPathComponent("Contents", isDirectory: true)
         try FileManager.default.createDirectory(at: contentsURL, withIntermediateDirectories: true)
 
