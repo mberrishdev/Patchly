@@ -48,6 +48,7 @@ final class AppState: ObservableObject {
 
     private var refreshTask: Task<Void, Never>?
     private var timerTask: Task<Void, Never>?
+    private var previouslyAvailableBundlePaths: Set<String>
 
     init(
         aggregator: UpdateAggregator = UpdateAggregator(),
@@ -64,6 +65,9 @@ final class AppState: ObservableObject {
         let cached = cacheStore.load()
         self.scannedApps = cached.apps
         self.cliTools = cached.cliTools
+        self.previouslyAvailableBundlePaths = Set(
+            cached.apps.filter(\.updateStatus.isUpdateAvailable).map(\.bundlePath)
+        )
     }
 
     func start() {
@@ -210,6 +214,7 @@ final class AppState: ObservableObject {
         }
         scannedApps = results
         cacheStore.save(apps: results, cliTools: cliTools)
+        notifyAboutNewlyAvailableUpdates(in: results)
 
         let tools = await toolsResult
         guard !Task.isCancelled else {
@@ -228,6 +233,21 @@ final class AppState: ObservableObject {
     private func refreshCLIToolsIfEnabled() async -> [CLITool] {
         guard settings.showsCLITools else { return [] }
         return await cliToolUpdateAggregator.refresh()
+    }
+
+    /// Notifies only for Scanned Apps that newly entered Update Available
+    /// this Refresh — never re-notifies for ones still pending from a prior
+    /// Refresh. See CONTEXT.md.
+    private func notifyAboutNewlyAvailableUpdates(in results: [ScannedApp]) {
+        let currentlyAvailable = results.filter(\.updateStatus.isUpdateAvailable)
+        let currentlyAvailableBundlePaths = Set(currentlyAvailable.map(\.bundlePath))
+        defer { previouslyAvailableBundlePaths = currentlyAvailableBundlePaths }
+
+        guard settings.notifiesOnUpdateAvailable else { return }
+        let newlyAvailableNames = currentlyAvailable
+            .filter { !previouslyAvailableBundlePaths.contains($0.bundlePath) }
+            .map(\.name)
+        UpdateNotifier.notify(newlyAvailableAppNames: newlyAvailableNames)
     }
 
     private func scheduleTimer() {

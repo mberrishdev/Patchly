@@ -41,6 +41,23 @@ struct SettingsGeneralTab: View {
                 }
             }
 
+            SettingsCard(label: "Menu Bar") {
+                SettingsCardRow(
+                    title: "Show badge count",
+                    subtitle: "Show the number of apps with an update available next to the menu bar icon."
+                ) {
+                    Toggle(
+                        "",
+                        isOn: Binding(
+                            get: { settings.showsBadgeCount },
+                            set: { settings.showsBadgeCount = $0 }
+                        )
+                    )
+                    .toggleStyle(.switch)
+                    .labelsHidden()
+                }
+            }
+
             SettingsCard(label: "List") {
                 SettingsCardRow(
                     title: "Show CLI tools",
@@ -51,6 +68,23 @@ struct SettingsGeneralTab: View {
                         isOn: Binding(
                             get: { settings.showsCLITools },
                             set: { settings.showsCLITools = $0 }
+                        )
+                    )
+                    .toggleStyle(.switch)
+                    .labelsHidden()
+                }
+            }
+
+            SettingsCard(label: "Startup") {
+                SettingsCardRow(
+                    title: "Launch at login",
+                    subtitle: "Start Patchly automatically when you sign in."
+                ) {
+                    Toggle(
+                        "",
+                        isOn: Binding(
+                            get: { settings.launchAtLoginEnabled },
+                            set: { settings.launchAtLoginEnabled = $0 }
                         )
                     )
                     .toggleStyle(.switch)
