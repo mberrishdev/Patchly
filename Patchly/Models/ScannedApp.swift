@@ -48,6 +48,7 @@ enum AppSource: String, Codable, Hashable, Sendable {
     case homebrewCask
     case electron
     case sparkleFeed
+    case customApp
     case unknown
 }
 

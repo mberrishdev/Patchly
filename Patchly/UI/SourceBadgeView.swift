@@ -20,6 +20,7 @@ struct SourceBadgeView: View {
         case .homebrewCask: "Homebrew"
         case .electron: "Electron"
         case .sparkleFeed: "Sparkle"
+        case .customApp: "Custom"
         case .unknown: nil
         }
     }
@@ -31,6 +32,7 @@ struct SourceBadgeView: View {
         SourceBadgeView(source: .homebrewCask)
         SourceBadgeView(source: .electron)
         SourceBadgeView(source: .sparkleFeed)
+        SourceBadgeView(source: .customApp)
         SourceBadgeView(source: .unknown)
     }
     .padding()

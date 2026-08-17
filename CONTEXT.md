@@ -17,7 +17,7 @@ Patchly is a menu-bar-only app with no persistent Dock icon.
 **Scanned App**: An application bundle discovered under `/Applications`, `/Applications/Utilities`, or `~/Applications` — either directly in one of those, or one level into a subfolder of one of those — together with the identity and version fields read from its `Info.plist`.
 _Avoid_: Installed app, package
 
-**Update Source**: The origin Patchly attributes a Scanned App to for update-checking purposes: Mac App Store, Homebrew Cask, Electron, or Sparkle Feed.
+**Update Source**: The origin Patchly attributes a Scanned App to for update-checking purposes: Mac App Store, Homebrew Cask, Electron, Sparkle Feed, or Custom App.
 _Avoid_: Install method, provider
 
 **Mac App Store Source**: An Update Source for a Scanned App whose bundle contains a `Contents/_MASReceipt/receipt` file.
@@ -31,6 +31,9 @@ _Avoid_: Electron app (many Electron apps ship a custom updater with no `app-upd
 
 **Sparkle Feed Source**: An Update Source for a Scanned App whose `Info.plist` declares a `SUFeedURL`.
 _Avoid_: Sparkle app (the app itself may or may not use Sparkle for its own UI; Patchly only reads its feed)
+
+**Custom App Source**: An Update Source for a Scanned App whose bundle identifier matches one of a small, explicitly maintained per-app registry — used only for apps that publish none of the other four Update Sources' generic signals. Checked last, after all four; membership in the registry (not any scan-time signal on the app itself) is what attributes it. Currently just Visual Studio Code (`com.microsoft.VSCode`), which ships a custom updater rather than electron-builder's and so publishes no `app-update.yml`. Each registry entry hardcodes one specific app's own private update API — this is a deliberate, narrow exception to Patchly's otherwise-general signal-based attribution, not a pattern to reach for casually; only add an app here when it's a real gap none of the other four sources can close.
+_Avoid_: Special-cased app, hack (the term is "Custom App Source" precisely because it's a real, first-class Update Source — just one keyed by an explicit allowlist instead of a generic bundle signal)
 
 **Update Status**: The result Patchly attaches to a Scanned App after checking its Update Source: Up to Date, Update Available, Checking, Check Failed, or one of the two Unknown states below.
 _Avoid_: Version status
@@ -50,7 +53,7 @@ _Avoid_: Database, history
 **Badge Count**: The number of Scanned Apps currently in Update Available status, shown next to the menu bar icon.
 _Avoid_: Notification count, alert count
 
-**Update Action**: How Patchly installs a Scanned App's available update: running `brew upgrade --cask` (Homebrew Cask Source), running `mas upgrade` (Mac App Store Source), or activating the app so its own linked updater runs (Electron Source, Sparkle Feed Source).
+**Update Action**: How Patchly installs a Scanned App's available update: running `brew upgrade --cask` (Homebrew Cask Source), running `mas upgrade` (Mac App Store Source), or activating the app so its own linked updater runs (Electron Source, Sparkle Feed Source, Custom App Source).
 _Avoid_: Install method (that term is reserved for Update Source, the detection origin — Update Action is what happens when the user asks to install)
 
 **Selection**: The set of Scanned Apps or CLI Tools the user has checked in the dropdown for a batch Update Action, independent of Update Status or Update Source. Scanned App Selection and CLI Tool Selection are two separate sets — checking apps and CLI Tools at the same time shows two independent "Update Selected" bars, not one combined one.
@@ -71,7 +74,8 @@ _Avoid_: Filter (Search is the user-typed text specifically; it never changes th
 - A Scanned App without a Mac App Store receipt is attributed to the Homebrew Cask Source when its bundle filename matches an installed cask's `artifacts.app` entry
 - A Scanned App matching neither the Mac App Store Source nor the Homebrew Cask Source, with an `app-update.yml` file, is attributed to the Electron Source
 - A Scanned App matching none of the above, and declaring a `SUFeedURL`, is attributed to the Sparkle Feed Source
-- A Scanned App matching none of the sources gets Unknown — No Source and is never treated as an error
+- A Scanned App matching none of the first four, and whose bundle identifier is in the Custom App Source's registry, is attributed to the Custom App Source — checked last, since it's a narrow fallback for apps the four generic sources structurally can't detect, never a way to override one of them
+- A Scanned App matching none of the sources, including the Custom App Source, gets Unknown — No Source and is never treated as an error
 - A Mac App Store Source app is checked with `mas outdated`; if `mas` is not installed, every Mac App Store Source app gets Unknown — mas Missing instead of blocking the rest of the Refresh
 - Unknown — mas Missing apps show an inline action offering to run `brew install mas`; completing that action triggers an immediate re-check of Mac App Store Source apps only
 - A Homebrew Cask Source app is checked via a single `brew info --cask --json=v2 --installed` call (this one call carries the installed version, latest version, outdated flag, and artifact filenames needed for matching, so no second call is needed); a cask not flagged `outdated` is Up to Date
@@ -82,6 +86,7 @@ _Avoid_: Filter (Search is the user-typed text specifically; it never changes th
 - An Electron Source app whose `app-update.yml` names any other provider is Check Failed, not Unknown — the update mechanism is real, Patchly just doesn't parse that provider yet
 - An Electron Source app's manifest is fetched independently per app, concurrently, with the same bounded-in-flight and per-app-failure-isolation behavior as the Sparkle Feed Source
 - Version comparison for Homebrew, Electron, and Sparkle sources uses dot-separated numeric comparison, never string equality, since "10" must sort after "9"
+- Visual Studio Code (`com.microsoft.VSCode`), the Custom App Source's one entry today, is checked against the same update API its own built-in updater calls, keyed by build commit (read from the app's own `Contents/Resources/app/product.json`) rather than by version — a 204 response means that commit is already latest (Up to Date); a 200 with a JSON body means it isn't, and the body's `productVersion` is the real latest version (Update Available). Its Update Action is always `.launchApp` — VS Code's own in-app updater handles the actual install; Patchly only checks and surfaces the status
 - Launching Patchly loads the Cache Snapshot into the dropdown immediately, then starts a Refresh in the background; the dropdown never shows a blank or loading-only state on a warm launch
 - A Refresh runs automatically on a timer (default six hours, user-configurable) and immediately after the Mac wakes from sleep
 - The user can trigger a Refresh manually at any time; a manual Refresh cancels any Refresh already in progress
