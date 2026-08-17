@@ -20,10 +20,22 @@ cask "patchly" do
     "~/Library/Preferences/com.mberrish.Patchly.plist",
   ]
 
+  # Patchly is ad-hoc signed (no Apple Developer ID yet), so without this
+  # macOS reports it as "damaged and can't be opened" on first launch —
+  # Gatekeeper's message for a quarantined app it can't notarization-verify,
+  # not actual corruption. Clearing the quarantine flag here means a plain
+  # `brew install --cask patchly` just works; only a manual DMG install
+  # (outside Homebrew) still needs this run by hand.
+  postflight do
+    system_command "/usr/bin/xattr",
+                    args: ["-cr", "#{appdir}/Patchly.app"]
+  end
+
   caveats do
     <<~EOS
-      Patchly is ad-hoc signed (no Apple Developer ID yet). If macOS says
-      it's damaged and can't be opened, clear the quarantine flag:
+      Patchly is ad-hoc signed (no Apple Developer ID yet). This cask already
+      clears the quarantine flag for you; if you instead installed the DMG
+      manually and macOS says Patchly is damaged and can't be opened, run:
         xattr -cr "#{appdir}/Patchly.app"
     EOS
   end
