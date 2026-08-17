@@ -44,7 +44,7 @@ struct SettingsGeneralTab: View {
             SettingsCard(label: "List") {
                 SettingsCardRow(
                     title: "Show CLI tools",
-                    subtitle: "List installed developer command-line tools (git, node, npm, and similar) with their versions. Display only — no update checks."
+                    subtitle: "List Homebrew-installed developer command-line tools with their versions, and check for updates."
                 ) {
                     Toggle(
                         "",

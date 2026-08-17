@@ -1,66 +1,45 @@
 import Foundation
 
-/// Detects a fixed list of common developer CLI tools by resolving each name
-/// against common install directories directly (never inherited `$PATH` — see
-/// `ExecutableLocator`) and running `<path> --version`. Purely local and
-/// read-only, so it's cheap to run as part of a Refresh. A tool that can't be
-/// resolved, or resolves but fails to run/report a version, is simply
-/// omitted — absence is normal here, never an error and never a status. See
-/// CONTEXT.md ("CLI Tool").
+/// Discovers CLI Tools via a single `brew list --formula --versions` call —
+/// Homebrew already enumerates every formula it installed and its version,
+/// so there's no directory scan, no per-binary `--version` probing, and no
+/// symlink resolution needed to find them. Purely local and read-only. No
+/// Homebrew installed, or the call failing, simply means no CLI Tools —
+/// never an error and never a status. See CONTEXT.md ("CLI Tool").
 actor CLIToolScanner {
-    static let knownToolNames = [
-        "git", "node", "npm", "npx", "python3", "pip3", "ruby", "gem", "go",
-        "cargo", "rustc", "docker", "kubectl", "gh", "java", "swift", "php",
-        "terraform", "aws", "gcloud", "psql", "redis-cli", "code", "copilot", "claude"
-    ]
-
     private let processRunner: ProcessRunning
-    private let toolNames: [String]
-    private let directories: [URL]
+    private let brewPath: String?
 
     init(
         processRunner: ProcessRunning = ProcessRunner(),
-        toolNames: [String] = CLIToolScanner.knownToolNames,
-        directories: [URL] = ExecutableLocator.commonToolDirectories()
+        brewPath: String? = ExecutableLocator.locateBrew()
     ) {
         self.processRunner = processRunner
-        self.toolNames = toolNames
-        self.directories = directories
+        self.brewPath = brewPath
     }
 
     func scanInstalledTools() async -> [CLITool] {
-        let directories = self.directories
-        let processRunner = self.processRunner
+        guard let brewPath else { return [] }
+        guard let result = try? await processRunner.run(
+            executablePath: brewPath,
+            arguments: ["list", "--formula", "--versions"],
+            timeout: 15
+        ), result.succeeded else { return [] }
 
-        let tools = await withTaskGroup(of: CLITool?.self) { group in
-            for name in toolNames {
-                group.addTask {
-                    await Self.resolveTool(named: name, in: directories, processRunner: processRunner)
-                }
-            }
-            var results: [CLITool] = []
-            for await tool in group {
-                if let tool { results.append(tool) }
-            }
-            return results
+        return Self.parse(result.standardOutput)
+            .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+    }
+
+    /// Each line is `<formula> <version> [<version>...]` (more than one
+    /// version when multiple are installed side-by-side); the last one
+    /// listed is what `brew link` currently points at.
+    static func parse(_ output: String) -> [CLITool] {
+        var tools: [CLITool] = []
+        for line in output.split(separator: "\n") {
+            let parts = line.split(separator: " ")
+            guard let name = parts.first, let latest = parts.last, parts.count >= 2 else { continue }
+            tools.append(CLITool(name: String(name), version: String(latest)))
         }
-        return tools.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
-    }
-
-    private static func resolveTool(named name: String, in directories: [URL], processRunner: ProcessRunning) async -> CLITool? {
-        guard let path = ExecutableLocator.locateTool(named: name, in: directories) else { return nil }
-        guard let result = try? await processRunner.run(executablePath: path, arguments: ["--version"], timeout: 5),
-              result.succeeded,
-              let firstLine = firstLine(of: result.standardOutput),
-              !firstLine.isEmpty
-        else { return nil }
-        return CLITool(name: name, executablePath: path, version: firstLine)
-    }
-
-    static func firstLine(of output: String) -> String? {
-        output
-            .split(separator: "\n", maxSplits: 1, omittingEmptySubsequences: true)
-            .first
-            .map { $0.trimmingCharacters(in: .whitespaces) }
+        return tools
     }
 }

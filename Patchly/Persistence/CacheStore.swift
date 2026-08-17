@@ -1,7 +1,8 @@
 import Foundation
 
-/// Reads and writes the Cache Snapshot: the last Refresh's results, persisted so
-/// the dropdown shows them instantly on launch. See CONTEXT.md.
+/// Reads and writes the Cache Snapshot: the last Refresh's results — both
+/// Scanned Apps and CLI Tools — persisted so the dropdown shows them
+/// instantly on launch. See CONTEXT.md.
 struct CacheStore: Sendable {
     private let fileURL: URL
 
@@ -17,13 +18,29 @@ struct CacheStore: Sendable {
         return supportDirectory.appendingPathComponent("cache.json")
     }
 
-    func load() -> [ScannedApp] {
-        guard let data = try? Data(contentsOf: fileURL) else { return [] }
-        return (try? JSONDecoder().decode([ScannedApp].self, from: data)) ?? []
+    /// A cache file written by a version of Patchly before CLI Tools were
+    /// cached (a plain `[ScannedApp]` array, not this wrapper) simply fails
+    /// to decode into `CacheSnapshot` and falls through to the same empty
+    /// result an unreadable/missing file already produces — no separate
+    /// migration path, consistent with that existing lenient-failure
+    /// behavior.
+    func load() -> (apps: [ScannedApp], cliTools: [CLITool]) {
+        guard let data = try? Data(contentsOf: fileURL),
+              let snapshot = try? JSONDecoder().decode(CacheSnapshot.self, from: data)
+        else {
+            return (apps: [], cliTools: [])
+        }
+        return (apps: snapshot.apps, cliTools: snapshot.cliTools)
     }
 
-    func save(_ apps: [ScannedApp]) {
-        guard let data = try? JSONEncoder().encode(apps) else { return }
+    func save(apps: [ScannedApp], cliTools: [CLITool]) {
+        let snapshot = CacheSnapshot(apps: apps, cliTools: cliTools)
+        guard let data = try? JSONEncoder().encode(snapshot) else { return }
         try? data.write(to: fileURL, options: .atomic)
     }
+}
+
+private struct CacheSnapshot: Codable {
+    let apps: [ScannedApp]
+    let cliTools: [CLITool]
 }

@@ -38,6 +38,9 @@ enum UpdateAction: Codable, Hashable, Sendable {
     /// can't verify an appcast item — Patchly activates the app and its own
     /// linked updater takes over instead.
     case launchApp
+    /// The CLI Tool Update Action: hand off to Homebrew, the same package
+    /// manager that installed the tool. See CONTEXT.md ("CLI Tool Source").
+    case runBrewUpgradeFormula(formulaName: String)
 }
 
 enum AppSource: String, Codable, Hashable, Sendable {
@@ -46,6 +49,16 @@ enum AppSource: String, Codable, Hashable, Sendable {
     case electron
     case sparkleFeed
     case unknown
+}
+
+/// The origin Patchly attributes a CLI Tool to for update-checking purposes:
+/// only Homebrew Formula, derived by resolving the tool's symlink chain back
+/// to a `Cellar/<formula>/` path — never by guessing from its name. A wholly
+/// separate concept from `AppSource`, since none of its cases apply to a
+/// standalone binary. See CONTEXT.md ("CLI Tool Source").
+enum CLIToolSource: String, Codable, Hashable, Sendable {
+    case homebrewFormula
+    case none
 }
 
 enum UpdateStatus: Codable, Hashable, Sendable {

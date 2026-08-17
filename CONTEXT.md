@@ -56,8 +56,11 @@ _Avoid_: Install method (that term is reserved for Update Source, the detection 
 **Selection**: The set of Scanned Apps the user has checked in the dropdown for a batch Update Action, independent of Update Status or Update Source.
 _Avoid_: Multi-select (describes the UI gesture, not the domain concept)
 
-**CLI Tool**: A detected developer command-line tool (e.g. git, node, npm) shown in the dropdown with its installed version; display-only, with no Update Source, Update Status, or Update Action — there is no safe universal way to check or install updates for arbitrary CLI tools.
-_Avoid_: CLI app, command-line app, Scanned App (a wholly separate concept — a CLI Tool is never attributed an Update Source or Update Status)
+**CLI Tool**: A Homebrew-installed developer command-line formula (e.g. ripgrep, jq), discovered via `brew list --formula --versions` rather than a fixed name list, directory scan, or per-binary probing, shown in the dropdown by its formula name with its installed version. Always attributed to the Homebrew Formula Source — there's no unattributed CLI Tool state, since Homebrew is the only thing Patchly discovers CLI Tools from at all.
+_Avoid_: CLI app, command-line app, Scanned App (a wholly separate concept), binary name (a CLI Tool's name is the Homebrew formula name, e.g. "ripgrep", not necessarily the command you'd type, e.g. "rg")
+
+**Homebrew Formula Source**: The CLI Tool Source — the only one Patchly has. A CLI Tool's Update Status comes from `brew info --json=v2 --formula --installed`, matched directly by formula name.
+_Avoid_: Brew formula, formula tool, CLI Tool Source (there's only ever this one, so the more general term is unnecessary)
 
 **Search**: A case-insensitive substring filter on Scanned App and CLI Tool names, applied only to what's currently displayed in the dropdown.
 _Avoid_: Filter (Search is the user-typed text specifically; it never changes the Cache Snapshot, sort order, or Refresh behavior)
@@ -105,10 +108,13 @@ _Avoid_: Filter (Search is the user-typed text specifically; it never changes th
 - An Electron Source app's direct-install verification failing (checksum, code signature, Team Identifier, or bundle identifier mismatch) is Check Failed, never a reason to fall back to activating the app — same reasoning as the Sparkle Feed Source: a failed verification means the download shouldn't be trusted, not that Patchly should try something else with it
 - Both direct-install Update Actions (Sparkle Feed Source, Electron Source) require macOS's "App Management" permission (System Settings → Privacy & Security → App Management) to actually replace another app's bundle — there's no API to request this proactively; macOS blocks the first write attempt and only then lists Patchly there for the user to grant. A replace blocked by this shows an actionable Check Failed reason telling the user exactly where to grant it, instead of the raw "operation not permitted" OS error
 - Patchly self-updates via Sparkle, checked separately from the Refresh cycle: automatically (user-configurable in Settings) and on manual request from the menu bar dropdown or Settings; this never affects Scanned Apps or the Cache Snapshot
-- CLI Tools are detected from a fixed list of common developer tool names, each resolved to a path by checking common install directories directly, never inherited `$PATH` — the same reasoning `ExecutableLocator` already applies to `brew`/`mas`, since GUI apps launched via LaunchServices don't get the user's shell rc file customizations
-- A name from the fixed list that doesn't resolve to a path, or resolves but fails to run or report a version, is simply omitted from the CLI Tools list — absence is normal, never an error and never a status, since CLI Tools have no Update Status at all
-- CLI Tools are only detected and shown when the user turns on the Show CLI Tools setting; detection is 100% local and read-only (no network calls), so it's folded into the same Refresh, but skipped entirely when the setting is off
-- A CLI Tool row has no checkbox, no Source Badge, and no Update Action — Selection and Update Action never apply to CLI Tools
+- CLI Tools are discovered with a single `brew list --formula --versions` call — no directory scan, no `$PATH`, no per-binary `--version` probe, no symlink resolution; Homebrew already enumerates every formula it installed and its version directly
+- CLI Tools are only detected and shown when the user turns on the Show CLI Tools setting, folded into the same Refresh when it's on, skipped entirely when it's off. Both discovery and the Homebrew Formula Source check are local and read-only — no network calls
+- Every CLI Tool is attributed to the Homebrew Formula Source by construction, since that's the only thing Patchly discovers CLI Tools from — there's no unattributed CLI Tool state, and no per-tool attribution step (unlike an Update Source's attribution across several possible origins for a Scanned App)
+- A CLI Tool's Update Status comes from a single `brew info --json=v2 --formula --installed` call (same one-call-carries-everything shape as the Homebrew Cask Source), matched to each discovered CLI Tool directly by formula name
+- A CLI Tool's Update Action hands off to `brew upgrade <formula>` — the same "hand off to a CLI that already downloads, verifies, and installs" reasoning as the Homebrew Cask/Mac App Store Update Actions; a successful CLI Tool update re-runs only the CLI Tool discovery+check pass, never a full Refresh, since it can't change anything about Scanned Apps
+- A CLI Tool row has no checkbox — Selection never applies to CLI Tools — but does show a Source Badge and an Update button when it has a real Update Status
+- A Refresh publishes Scanned Apps as soon as they're ready rather than waiting on CLI Tools too, since there's no reason to hold the app results back for an unrelated check — the two passes start concurrently. `isRefreshing` — and the disabled Refresh button — stays true for the whole duration, not just the apps portion
 - The auto-Refresh interval is user-configurable from Settings (1/3/6/12/24 hours), backed by the same `refreshIntervalSeconds` the timer already reads
 
 ## Flagged ambiguities
@@ -118,6 +124,7 @@ _Avoid_: Filter (Search is the user-typed text specifically; it never changes th
 - Many Electron apps ship a custom updater with no `app-update.yml` at all (seen firsthand: Discord ships its own native updater module) and are never attributed to the Electron Source — this is an inherent coverage gap, not a bug to chase
 - A Sparkle Feed Source direct-install Update Action quitting a running app can lose that app's unsaved state (open documents, browser tabs the app doesn't itself persist, in-progress work) — clicking Update on a single row runs immediately with no confirmation, same as every other Update Action, so this real consequence isn't surfaced to the user before it happens. Whether direct-install specifically deserves its own confirmation, distinct from the general single-row-runs-immediately rule, is unresolved
 - Patchly only handles the common case of a Sparkle update archive containing exactly one `.app` at its top level (or, for a `.dmg`, mounted at its top level); an update packaged as an installer `.pkg`, or with additional non-`.app` payloads Sparkle's own updater would normally handle, isn't supported — falls back to Check Failed, not silently ignored
+- CLI Tools only ever shows Homebrew-installed formulae — a system tool (git, python3), an `npm install -g`/`cargo install`/`pip`-installed tool, or a hand-copied script never appears, even though each is a real, useful CLI tool a developer might want tracked. This is a deliberate scope choice (a directory-scan-and-probe-everything approach was tried and discarded — see git history — for being both slow at scale and still needing per-source special-casing to check for updates), not a temporary gap
 
 ## Example dialogue
 

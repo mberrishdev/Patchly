@@ -1,10 +1,14 @@
 import SwiftUI
 
-/// A single CLI Tool row: name + version, nothing else — no checkbox, no
-/// source badge, no update button. CLI Tools are display-only, so this is
-/// deliberately simpler than `AppRowView`. See CONTEXT.md ("CLI Tool").
+/// A single CLI Tool row: name + version, plus an Update Status slot when
+/// the tool is attributed to a CLI Tool Source — a tool with no attributed
+/// source shows nothing beyond its version, same as before source
+/// attribution existed. No checkbox and no Selection; a CLI Tool updates
+/// one row at a time. See CONTEXT.md ("CLI Tool").
 struct CLIToolRowView: View {
     let tool: CLITool
+    var isInstalling = false
+    var onUpdate: () -> Void = {}
 
     var body: some View {
         HStack(spacing: 10) {
@@ -14,21 +18,61 @@ struct CLIToolRowView: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(tool.name).font(.body)
-                Text(tool.version).font(.caption).foregroundStyle(.secondary)
+                Text(versionText).font(.caption).foregroundStyle(.secondary)
             }
 
             Spacer()
+
+            CLIToolSourceBadgeView(source: tool.source)
+
+            statusIndicator
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 6)
+    }
+
+    private var versionText: String {
+        switch tool.updateStatus {
+        case .updateAvailable(let latest):
+            "\(tool.version) → \(latest)"
+        default:
+            tool.version
+        }
+    }
+
+    @ViewBuilder
+    private var statusIndicator: some View {
+        switch tool.updateStatus {
+        case .updateAvailable:
+            if isInstalling {
+                ProgressView().controlSize(.small)
+            } else {
+                Button("Update", action: onUpdate)
+                    .buttonStyle(.plain)
+                    .font(.caption)
+                    .foregroundStyle(.blue)
+            }
+        case .checkFailed:
+            Circle().fill(Color.red).frame(width: 8, height: 8)
+        case .upToDate, .checking, .unknownNoSource, .unknownMasCliMissing:
+            EmptyView()
+        }
     }
 }
 
 #Preview {
     VStack(spacing: 0) {
-        CLIToolRowView(tool: CLITool(name: "git", executablePath: "/usr/bin/git", version: "git version 2.43.0"))
+        CLIToolRowView(tool: .preview(name: "rg", source: .homebrewFormula, status: .updateAvailable(latestVersion: "14.1.1")))
         Divider()
-        CLIToolRowView(tool: CLITool(name: "node", executablePath: "/opt/homebrew/bin/node", version: "v20.11.0"))
+        CLIToolRowView(tool: .preview(name: "jq", source: .homebrewFormula, status: .upToDate))
+        Divider()
+        CLIToolRowView(tool: .preview(name: "curl", source: .none, status: .unknownNoSource))
     }
     .frame(width: 340)
+}
+
+private extension CLITool {
+    static func preview(name: String, source: CLIToolSource, status: UpdateStatus) -> CLITool {
+        CLITool(name: name, version: "1.0.0", source: source, updateStatus: status)
+    }
 }

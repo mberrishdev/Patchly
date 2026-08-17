@@ -28,10 +28,15 @@ protocol ProcessRunning: Sendable {
 /// Task is cancelled, or `timeout` elapses first, the child is terminated and
 /// this function throws rather than returning a result — callers already
 /// treat a thrown error as a failed check. Pipe reads run on a GCD queue
-/// (never the Swift concurrency pool, so they can't starve it) and are
-/// force-closed after a short grace period past process exit, so a lingering
-/// grandchild process still holding a pipe open (e.g. a `curl` spawned by
-/// `brew`) can't hang the read past the requested timeout.
+/// (never the Swift concurrency pool, so they can't starve it), start as
+/// soon as the process launches (not after it exits — a command whose
+/// output exceeds the OS pipe buffer, roughly 64KB, would otherwise block
+/// the child on `write()` forever, since nothing would be reading from the
+/// pipe until `waitUntilExit()` returns, which itself never would), and are
+/// force-closed a few seconds after the process exits if a read is still
+/// pending, so a lingering grandchild process still holding a pipe open
+/// (e.g. a `curl` spawned by `brew`) can't hang the read past the requested
+/// timeout.
 struct ProcessRunner: ProcessRunning {
     func run(executablePath: String, arguments: [String], timeout: TimeInterval = 15) async throws -> ProcessResult {
         let process = Process()
@@ -49,6 +54,14 @@ struct ProcessRunner: ProcessRunning {
             throw ProcessRunnerError.launchFailed(error.localizedDescription)
         }
 
+        // Started now, before the exit-wait below — not after — so a
+        // large-output command can't deadlock the child on a full pipe.
+        // Plain `Task` handles, not `async let` — the grace-period race
+        // below needs to capture them inside a `withTaskGroup` child task,
+        // which `async let` bindings can't be.
+        let outputTask = Task { await Self.readAllData(from: outputPipe.fileHandleForReading) }
+        let errorTask = Task { await Self.readAllData(from: errorPipe.fileHandleForReading) }
+
         let deadline = Date().addingTimeInterval(timeout)
         var timedOut = false
         while process.isRunning {
@@ -65,7 +78,39 @@ struct ProcessRunner: ProcessRunning {
         }
         process.waitUntilExit()
 
-        let (outData, errData) = await Self.drainPipes(outputPipe: outputPipe, errorPipe: errorPipe)
+        // The reads above are already in flight (and likely already done,
+        // since the process just exited/was terminated) — this only races
+        // them against a grace period in case a grandchild is still holding
+        // a pipe's write end open.
+        let (outData, errData) = await withTaskGroup(of: PipeReadOutcome.self) { group in
+            group.addTask { .output(await outputTask.value) }
+            group.addTask { .error(await errorTask.value) }
+            group.addTask {
+                try? await Task.sleep(nanoseconds: 3_000_000_000)
+                return .gracePeriodExpired
+            }
+
+            var outputResult = Data()
+            var errorResult = Data()
+            var pendingReads = 2
+
+            for await outcome in group {
+                switch outcome {
+                case .output(let data):
+                    outputResult = data
+                    pendingReads -= 1
+                case .error(let data):
+                    errorResult = data
+                    pendingReads -= 1
+                case .gracePeriodExpired:
+                    outputPipe.fileHandleForReading.closeFile()
+                    errorPipe.fileHandleForReading.closeFile()
+                }
+                if pendingReads == 0 { break }
+            }
+            group.cancelAll()
+            return (outputResult, errorResult)
+        }
 
         if Task.isCancelled {
             throw CancellationError()
@@ -86,45 +131,6 @@ struct ProcessRunner: ProcessRunning {
             DispatchQueue.global(qos: .utility).async {
                 continuation.resume(returning: handle.readDataToEndOfFile())
             }
-        }
-    }
-
-    /// Reads both pipes to completion, but force-closes them a few seconds
-    /// after the process has exited if a read is still pending — otherwise a
-    /// grandchild process holding a pipe's write end open could block the
-    /// read forever, no matter what `timeout` the caller asked for.
-    private static func drainPipes(outputPipe: Pipe, errorPipe: Pipe) async -> (Data, Data) {
-        let outputHandle = outputPipe.fileHandleForReading
-        let errorHandle = errorPipe.fileHandleForReading
-
-        return await withTaskGroup(of: PipeReadOutcome.self) { group in
-            group.addTask { .output(await readAllData(from: outputHandle)) }
-            group.addTask { .error(await readAllData(from: errorHandle)) }
-            group.addTask {
-                try? await Task.sleep(nanoseconds: 3_000_000_000)
-                return .gracePeriodExpired
-            }
-
-            var outputData = Data()
-            var errorData = Data()
-            var pendingReads = 2
-
-            for await outcome in group {
-                switch outcome {
-                case .output(let data):
-                    outputData = data
-                    pendingReads -= 1
-                case .error(let data):
-                    errorData = data
-                    pendingReads -= 1
-                case .gracePeriodExpired:
-                    outputHandle.closeFile()
-                    errorHandle.closeFile()
-                }
-                if pendingReads == 0 { break }
-            }
-            group.cancelAll()
-            return (outputData, errorData)
         }
     }
 

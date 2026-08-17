@@ -39,7 +39,13 @@ struct MenuBarContentView: View {
                         if !filteredCLITools.isEmpty {
                             cliToolsHeader
                             ForEach(filteredCLITools) { tool in
-                                CLIToolRowView(tool: tool)
+                                CLIToolRowView(
+                                    tool: tool,
+                                    isInstalling: appState.installingCLIToolNames.contains(tool.name),
+                                    onUpdate: {
+                                        Task { await appState.installCLIToolUpdate(for: tool.name) }
+                                    }
+                                )
                                 Divider()
                             }
                         }

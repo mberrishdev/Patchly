@@ -7,6 +7,12 @@ struct UpdateInstallResult: Sendable {
     let failureReason: String?
 }
 
+struct CLIToolUpdateInstallResult: Sendable {
+    let name: String
+    let succeeded: Bool
+    let failureReason: String?
+}
+
 /// Runs a Scanned App's `UpdateAction`. Homebrew Cask and Mac App Store apps
 /// are upgraded directly via their CLI (`brew upgrade --cask`, `mas upgrade`)
 /// — both already handle download/verify/install safely. Sparkle and
@@ -47,14 +53,14 @@ struct UpdateInstaller: Sendable {
                 executablePath: brewPath,
                 missingToolMessage: "Homebrew not found",
                 arguments: ["upgrade", "--cask", caskToken],
-                bundlePath: app.bundlePath
+                identifier: app.bundlePath
             )
         case .runMasUpgrade(let appID):
             return await runUpgrade(
                 executablePath: masPath,
                 missingToolMessage: "mas CLI not found",
                 arguments: ["upgrade", appID],
-                bundlePath: app.bundlePath
+                identifier: app.bundlePath
             )
         case .installSparkleUpdate(let enclosureURL, let edSignatureBase64, let publicKeyBase64):
             return await sparkleDirectInstaller.install(
@@ -72,31 +78,59 @@ struct UpdateInstaller: Sendable {
             )
         case .launchApp:
             return await launchApp(bundlePath: app.bundlePath, source: app.source, bundleIdentifier: app.bundleIdentifier)
+        case .runBrewUpgradeFormula:
+            // Only ever produced for a CLITool's updateAction, never a ScannedApp's.
+            return UpdateInstallResult(bundlePath: app.bundlePath, succeeded: false, failureReason: "Not a Scanned App update action")
         }
+    }
+
+    /// Runs a CLI Tool's `UpdateAction` by handing off to Homebrew — the
+    /// same "hand off to a CLI that already downloads, verifies, and
+    /// installs" reasoning as the Homebrew Cask/Mac App Store Update
+    /// Actions. See CONTEXT.md.
+    func install(_ tool: CLITool) async -> CLIToolUpdateInstallResult {
+        guard let action = tool.updateAction else {
+            return CLIToolUpdateInstallResult(name: tool.name, succeeded: false, failureReason: "No update action available")
+        }
+
+        let result: UpdateInstallResult
+        switch action {
+        case .runBrewUpgradeFormula(let formulaName):
+            result = await runUpgrade(
+                executablePath: brewPath,
+                missingToolMessage: "Homebrew not found",
+                arguments: ["upgrade", formulaName],
+                identifier: tool.name
+            )
+        case .runBrewUpgrade, .runMasUpgrade, .installSparkleUpdate, .installElectronUpdate, .launchApp:
+            // Only ever produced for a ScannedApp's updateAction, never a CLITool's.
+            return CLIToolUpdateInstallResult(name: tool.name, succeeded: false, failureReason: "Not a CLI Tool update action")
+        }
+        return CLIToolUpdateInstallResult(name: result.bundlePath, succeeded: result.succeeded, failureReason: result.failureReason)
     }
 
     private func runUpgrade(
         executablePath: String?,
         missingToolMessage: String,
         arguments: [String],
-        bundlePath: String
+        identifier: String
     ) async -> UpdateInstallResult {
         guard let executablePath else {
-            return UpdateInstallResult(bundlePath: bundlePath, succeeded: false, failureReason: missingToolMessage)
+            return UpdateInstallResult(bundlePath: identifier, succeeded: false, failureReason: missingToolMessage)
         }
         do {
             // Installs can mean a real download, unlike the ~15-30s checks —
             // give this much more headroom before treating it as stuck.
             let result = try await processRunner.run(executablePath: executablePath, arguments: arguments, timeout: 300)
             if result.succeeded {
-                return UpdateInstallResult(bundlePath: bundlePath, succeeded: true, failureReason: nil)
+                return UpdateInstallResult(bundlePath: identifier, succeeded: true, failureReason: nil)
             }
             let reason = result.standardError.isEmpty
                 ? "exited \(result.terminationStatus)"
                 : result.standardError
-            return UpdateInstallResult(bundlePath: bundlePath, succeeded: false, failureReason: reason)
+            return UpdateInstallResult(bundlePath: identifier, succeeded: false, failureReason: reason)
         } catch {
-            return UpdateInstallResult(bundlePath: bundlePath, succeeded: false, failureReason: error.localizedDescription)
+            return UpdateInstallResult(bundlePath: identifier, succeeded: false, failureReason: error.localizedDescription)
         }
     }
 

@@ -90,6 +90,45 @@ final class UpdateInstallerTests: XCTestCase {
         XCTAssertNil(runner.lastExecutablePath)
     }
 
+    func testCLIToolNoUpdateActionFailsImmediately() async {
+        let installer = UpdateInstaller(processRunner: RecordingProcessRunner(outcome: .success(.ok)), brewPath: nil, masPath: nil)
+        let result = await installer.install(tool(updateAction: nil))
+        XCTAssertFalse(result.succeeded)
+        XCTAssertEqual(result.failureReason, "No update action available")
+    }
+
+    func testCLIToolBrewFormulaUpgradeRunsCorrectArguments() async {
+        let runner = RecordingProcessRunner(outcome: .success(.ok))
+        let installer = UpdateInstaller(processRunner: runner, brewPath: "/opt/homebrew/bin/brew", masPath: nil)
+
+        let result = await installer.install(tool(updateAction: .runBrewUpgradeFormula(formulaName: "ripgrep")))
+
+        XCTAssertTrue(result.succeeded)
+        XCTAssertEqual(runner.lastExecutablePath, "/opt/homebrew/bin/brew")
+        XCTAssertEqual(runner.lastArguments, ["upgrade", "ripgrep"])
+    }
+
+    func testCLIToolMissingBrewFailsWithoutRunningAnything() async {
+        let runner = RecordingProcessRunner(outcome: .success(.ok))
+        let installer = UpdateInstaller(processRunner: runner, brewPath: nil, masPath: nil)
+
+        let result = await installer.install(tool(updateAction: .runBrewUpgradeFormula(formulaName: "ripgrep")))
+
+        XCTAssertFalse(result.succeeded)
+        XCTAssertEqual(result.failureReason, "Homebrew not found")
+        XCTAssertNil(runner.lastExecutablePath)
+    }
+
+    private func tool(updateAction: UpdateAction?) -> CLITool {
+        CLITool(
+            name: "ripgrep",
+            version: "14.1.0",
+            source: .homebrewFormula,
+            updateStatus: .updateAvailable(latestVersion: "14.1.1"),
+            updateAction: updateAction
+        )
+    }
+
     private func app(
         source: AppSource = .homebrewCask,
         bundleIdentifier: String? = "com.example.app",

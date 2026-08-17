@@ -11,6 +11,7 @@ final class AppState: ObservableObject {
     @Published private(set) var isRefreshing = false
     @Published private(set) var lastRefreshDate: Date?
     @Published private(set) var installingBundlePaths: Set<String> = []
+    @Published private(set) var installingCLIToolNames: Set<String> = []
     @Published var selectedBundlePaths: Set<String> = []
 
     var badgeCount: Int {
@@ -30,7 +31,7 @@ final class AppState: ObservableObject {
     private let cacheStore: CacheStore
     private let settings: AppSettings
     private let installer: UpdateInstaller
-    private let cliToolScanner: CLIToolScanner
+    private let cliToolUpdateAggregator: CLIToolUpdateAggregator
 
     private var refreshTask: Task<Void, Never>?
     private var timerTask: Task<Void, Never>?
@@ -40,14 +41,16 @@ final class AppState: ObservableObject {
         cacheStore: CacheStore = CacheStore(),
         settings: AppSettings,
         installer: UpdateInstaller = UpdateInstaller(),
-        cliToolScanner: CLIToolScanner = CLIToolScanner()
+        cliToolUpdateAggregator: CLIToolUpdateAggregator = CLIToolUpdateAggregator()
     ) {
         self.aggregator = aggregator
         self.cacheStore = cacheStore
         self.settings = settings
         self.installer = installer
-        self.cliToolScanner = cliToolScanner
-        self.scannedApps = cacheStore.load()
+        self.cliToolUpdateAggregator = cliToolUpdateAggregator
+        let cached = cacheStore.load()
+        self.scannedApps = cached.apps
+        self.cliTools = cached.cliTools
     }
 
     func start() {
@@ -102,11 +105,32 @@ final class AppState: ObservableObject {
         }
 
         installingBundlePaths.subtract(targets.map(\.bundlePath))
-        cacheStore.save(scannedApps)
+        cacheStore.save(apps: scannedApps, cliTools: cliTools)
 
         if anySucceeded {
             refresh()
         }
+    }
+
+    /// Installs a single CLI Tool's update via `UpdateInstaller`. Success
+    /// re-runs only the CLI Tool discovery+check pass, never a full Refresh
+    /// — a `brew upgrade` can't change anything about `scannedApps`. See
+    /// CONTEXT.md.
+    func installCLIToolUpdate(for name: String) async {
+        guard let tool = cliTools.first(where: { $0.name == name }) else { return }
+
+        installingCLIToolNames.insert(name)
+        let result = await installer.install(tool)
+        installingCLIToolNames.remove(name)
+
+        if result.succeeded {
+            let tools = await refreshCLIToolsIfEnabled()
+            guard !Task.isCancelled else { return }
+            cliTools = tools
+        } else if let index = cliTools.firstIndex(where: { $0.name == name }) {
+            cliTools[index].updateStatus = .checkFailed(reason: result.failureReason ?? "Update failed")
+        }
+        cacheStore.save(apps: scannedApps, cliTools: cliTools)
     }
 
     private func recheckMacAppStoreApps() async {
@@ -135,32 +159,44 @@ final class AppState: ObservableObject {
             scannedApps[index].updateStatus = result.status
             scannedApps[index].lastCheckedAt = now
         }
-        cacheStore.save(scannedApps)
+        cacheStore.save(apps: scannedApps, cliTools: cliTools)
     }
 
+    /// Both passes start together, but Scanned Apps publish as soon as
+    /// they're ready rather than waiting on CLI Tools too, since there's no
+    /// reason to hold the app results back for an unrelated check.
+    /// `isRefreshing` — and the disabled Refresh button — stays true for the
+    /// whole duration, not just the apps portion. See CONTEXT.md.
     private func performRefresh() async {
         isRefreshing = true
         async let appsResult = aggregator.refresh()
-        async let toolsResult = scanCLIToolsIfEnabled()
+        async let toolsResult = refreshCLIToolsIfEnabled()
+
         let results = await appsResult
-        let tools = await toolsResult
         guard !Task.isCancelled else {
             isRefreshing = false
             return
         }
         scannedApps = results
+        cacheStore.save(apps: results, cliTools: cliTools)
+
+        let tools = await toolsResult
+        guard !Task.isCancelled else {
+            isRefreshing = false
+            return
+        }
         cliTools = tools
         lastRefreshDate = Date()
         isRefreshing = false
-        cacheStore.save(results)
+        cacheStore.save(apps: scannedApps, cliTools: tools)
     }
 
-    /// CLI Tool detection is 100% local and read-only, so it's cheap to fold
-    /// into the same Refresh — but only when the user has opted in. See
-    /// CONTEXT.md ("CLI Tool").
-    private func scanCLIToolsIfEnabled() async -> [CLITool] {
+    /// CLI Tool discovery and Homebrew Formula checking are both local and
+    /// read-only, folded into the same Refresh, but only when the user has
+    /// opted in. See CONTEXT.md ("CLI Tool").
+    private func refreshCLIToolsIfEnabled() async -> [CLITool] {
         guard settings.showsCLITools else { return [] }
-        return await cliToolScanner.scanInstalledTools()
+        return await cliToolUpdateAggregator.refresh()
     }
 
     private func scheduleTimer() {
