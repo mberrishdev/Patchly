@@ -7,11 +7,13 @@
 #   scripts/release.sh 0.0.2 --dry-run  # build and package only, publish nothing
 #
 # Patchly has no Developer ID yet, so the app is ad-hoc signed rather than
-# notarized: Gatekeeper will show "unidentified developer" on first launch,
-# bypassed with a right-click -> Open. This also EdDSA-signs the DMG with
-# scripts/generate-sparkle-keys.sh's Keychain-stored key and prepends a new
+# notarized: Gatekeeper will show "damaged and can't be opened" on first
+# launch on Apple Silicon, bypassed with `xattr -cr` (NOT the right-click ->
+# Open trick, which only works for the older "unidentified developer"
+# message on Intel/older macOS). This also EdDSA-signs the DMG with
+# scripts/generate-sparkle-keys.sh's Keychain-stored key, prepends a new
 # <item> to appcast.xml so Patchly's own Sparkle updater can find the
-# release. There is no Homebrew cask yet, so that isn't touched here.
+# release, and bumps Casks/patchly.rb's version/sha256 for the Homebrew tap.
 
 set -euo pipefail
 
@@ -176,8 +178,16 @@ if $DRY_RUN; then
   echo "  DMG: $DMG"
   echo "  version bump not written (dry run) — project.pbxproj is untouched"
   echo "  appcast.xml not updated (dry run)"
+  echo "  Casks/patchly.rb not updated (dry run)"
   exit 0
 fi
+
+step "Updating Casks/patchly.rb"
+/usr/bin/sed -i '' \
+  -e "s/^\([[:space:]]*\)version \".*\"$/\1version \"$VERSION\"/" \
+  -e "s/^\([[:space:]]*\)sha256 \".*\"$/\1sha256 \"$SHA\"/" \
+  Casks/patchly.rb
+echo "  version $VERSION, sha256 $SHA"
 
 step "Adding $VERSION to appcast.xml"
 ITEM_FILE="$BUILD_DIR/appcast-item.xml"
@@ -203,7 +213,7 @@ echo "  prepended the $VERSION entry"
 # ----------------------------------------------------------------- publish
 
 step "Committing and tagging"
-git add project.yml Patchly.xcodeproj/project.pbxproj appcast.xml
+git add project.yml Patchly.xcodeproj/project.pbxproj appcast.xml Casks/patchly.rb
 if git diff --cached --quiet; then
   echo "  nothing staged — version already matches"
 else
@@ -221,11 +231,24 @@ PREV_TAG="$(git describe --tags --abbrev=0 "$TAG^" 2>/dev/null || true)"
 {
   echo "## Install"
   echo
+  echo "### Homebrew"
+  echo '```'
+  echo "brew tap mberrishdev/patchly https://github.com/mberrishdev/Patchly"
+  echo "brew trust --tap mberrishdev/patchly"
+  echo "brew install --cask patchly"
+  echo '```'
+  echo
+  echo "### Manual"
+  echo
   echo "Download **Patchly-$VERSION.dmg** below, drag Patchly into Applications."
   echo
   echo "This build is ad-hoc signed (no Apple Developer ID yet), so on first"
-  echo "launch macOS will say it can't verify the app. Right-click -> Open ->"
-  echo "Open again to bypass that — only needed once."
+  echo "launch macOS will say it's damaged and can't be opened. Clear the"
+  echo "quarantine flag instead of trusting Gatekeeper's own bypass hint —"
+  echo "right-click -> Open doesn't work here:"
+  echo '```'
+  echo "xattr -cr /Applications/Patchly.app"
+  echo '```'
   echo
   echo "## Changes"
   echo

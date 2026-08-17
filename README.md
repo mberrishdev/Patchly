@@ -40,7 +40,13 @@ Run the tests the same way CI does:
 xcodebuild test -project Patchly.xcodeproj -scheme Patchly -destination 'platform=macOS'
 ```
 
-A Homebrew cask (`brew install --cask patchly`) is planned once there's a first tagged release.
+Or via Homebrew:
+
+```bash
+brew tap mberrishdev/patchly https://github.com/mberrishdev/Patchly
+brew trust --tap mberrishdev/patchly
+brew install --cask patchly
+```
 
 ## Using it
 
