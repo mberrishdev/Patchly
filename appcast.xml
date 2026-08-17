@@ -16,6 +16,16 @@
     <language>en</language>
     <!-- scripts/release.sh inserts new <item> entries directly below this line, newest first -->
     <item>
+      <title>Patchly 0.0.8</title>
+      <pubDate>Mon, 17 Aug 2026 19:07:33 +0000</pubDate>
+      <sparkle:version>40</sparkle:version>
+      <sparkle:shortVersionString>0.0.8</sparkle:shortVersionString>
+      <enclosure
+        url="https://github.com/mberrishdev/Patchly/releases/download/v0.0.8/Patchly-0.0.8.dmg"
+        type="application/octet-stream"
+        sparkle:edSignature="svTjRoJuAvkQwnEcfFLEabiEopJMDn/dXL7XWLQpXGsTeeuVZM9Z/Mdh8f0TrSMSHZcEsriiKWoXoFXCyeM7Dg==" length="2535971" />
+    </item>
+    <item>
       <title>Patchly 0.0.7</title>
       <pubDate>Mon, 17 Aug 2026 18:18:18 +0000</pubDate>
       <sparkle:version>39</sparkle:version>
