@@ -22,9 +22,16 @@ enum VersionComparator {
         return .orderedSame
     }
 
+    /// Takes only the *leading* run of digits in each dot-separated component,
+    /// not every digit anywhere in it. Some appcasts (Arc's among them) embed
+    /// a build number in parens, e.g. "1.160.0 (85122)" — filtering every
+    /// digit in "0 (85122)" would concatenate to 085122 and badly outrank a
+    /// clean "0", making an identical version look newer. Stopping at the
+    /// first non-digit character treats "(85122)" as decoration, matching
+    /// "1.2.0-beta" already correctly comparing equal to "1.2.0".
     private static func numericComponents(of version: String) -> [Int] {
         version.split(separator: ".").map { component in
-            Int(component.filter(\.isNumber)) ?? 0
+            Int(component.prefix(while: \.isNumber)) ?? 0
         }
     }
 }

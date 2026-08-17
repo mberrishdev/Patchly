@@ -20,4 +20,12 @@ final class VersionComparatorTests: XCTestCase {
     func testNonNumericSuffixDoesNotCrash() {
         XCTAssertEqual(VersionComparator.compare("1.2.0-beta", "1.2.0"), .orderedSame)
     }
+
+    func testParentheticalBuildNumberDoesNotInflateTheComponent() {
+        // Real bug: Arc's appcast reports "1.160.0 (85122)" — filtering every
+        // digit in "0 (85122)" used to concatenate to 085122 and badly
+        // outrank a clean "0", falsely showing an update for the same version.
+        XCTAssertEqual(VersionComparator.compare("1.160.0 (85122)", "1.160.0"), .orderedSame)
+        XCTAssertFalse(VersionComparator.isVersion("1.160.0 (85122)", greaterThan: "1.160.0"))
+    }
 }
