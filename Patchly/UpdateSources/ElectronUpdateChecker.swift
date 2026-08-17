@@ -57,7 +57,7 @@ private func checkSingle(_ app: DiscoveredApp, session: URLSession) async -> Upd
         }
 
         if VersionComparator.isVersion(latest, greaterThan: app.installedVersion) {
-            return UpdateCheckResult(status: .updateAvailable(latestVersion: latest))
+            return UpdateCheckResult(status: .updateAvailable(latestVersion: latest), action: .launchApp)
         }
         return UpdateCheckResult(status: .upToDate)
     } catch {

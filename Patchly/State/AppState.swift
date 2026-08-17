@@ -9,6 +9,8 @@ final class AppState: ObservableObject {
     @Published private(set) var scannedApps: [ScannedApp] = []
     @Published private(set) var isRefreshing = false
     @Published private(set) var lastRefreshDate: Date?
+    @Published private(set) var installingBundlePaths: Set<String> = []
+    @Published var selectedBundlePaths: Set<String> = []
 
     var badgeCount: Int {
         scannedApps.filter(\.updateStatus.isUpdateAvailable).count
@@ -26,6 +28,7 @@ final class AppState: ObservableObject {
     private let aggregator: UpdateAggregator
     private let cacheStore: CacheStore
     private let settings: AppSettings
+    private let installer: UpdateInstaller
 
     private var refreshTask: Task<Void, Never>?
     private var timerTask: Task<Void, Never>?
@@ -33,11 +36,13 @@ final class AppState: ObservableObject {
     init(
         aggregator: UpdateAggregator = UpdateAggregator(),
         cacheStore: CacheStore = CacheStore(),
-        settings: AppSettings
+        settings: AppSettings,
+        installer: UpdateInstaller = UpdateInstaller()
     ) {
         self.aggregator = aggregator
         self.cacheStore = cacheStore
         self.settings = settings
+        self.installer = installer
         self.scannedApps = cacheStore.load()
     }
 
@@ -61,6 +66,43 @@ final class AppState: ObservableObject {
         guard let brewPath = ExecutableLocator.locateBrew() else { return }
         _ = try? await ProcessRunner().run(executablePath: brewPath, arguments: ["install", "mas"], timeout: 180)
         await recheckMacAppStoreApps()
+    }
+
+    /// Installs the update for each given app via `UpdateInstaller`, in
+    /// parallel — one app's failure never blocks another's. A failed install
+    /// sets that app's Update Status to Check Failed with the reason, reusing
+    /// the existing status UI rather than adding a separate error surface.
+    /// Successful Homebrew/Mac App Store installs are reflected by a full
+    /// Refresh afterward, since the install may have changed more than just
+    /// the one app (e.g. `brew upgrade` can touch the local tap metadata).
+    /// See CONTEXT.md.
+    func installUpdates(for bundlePaths: Set<String>) async {
+        let targets = scannedApps.filter { bundlePaths.contains($0.bundlePath) }
+        guard !targets.isEmpty else { return }
+
+        installingBundlePaths.formUnion(targets.map(\.bundlePath))
+        selectedBundlePaths.subtract(targets.map(\.bundlePath))
+
+        var anySucceeded = false
+        await withTaskGroup(of: UpdateInstallResult.self) { group in
+            for app in targets {
+                group.addTask { await self.installer.install(app) }
+            }
+            for await result in group {
+                if result.succeeded {
+                    anySucceeded = true
+                } else if let index = scannedApps.firstIndex(where: { $0.bundlePath == result.bundlePath }) {
+                    scannedApps[index].updateStatus = .checkFailed(reason: result.failureReason ?? "Update failed")
+                }
+            }
+        }
+
+        installingBundlePaths.subtract(targets.map(\.bundlePath))
+        cacheStore.save(scannedApps)
+
+        if anySucceeded {
+            refresh()
+        }
     }
 
     private func recheckMacAppStoreApps() async {

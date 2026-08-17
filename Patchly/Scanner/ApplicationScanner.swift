@@ -69,6 +69,8 @@ actor ApplicationScanner {
             .flatMap { String(data: $0, encoding: .utf8) }
             .flatMap(ElectronUpdateConfigParser.parse)
 
+        let publicEDKey = info["SUPublicEDKey"] as? String
+
         return DiscoveredApp(
             name: name,
             bundlePath: bundleURL.path,
@@ -76,7 +78,8 @@ actor ApplicationScanner {
             installedVersion: version,
             hasMacAppStoreReceipt: hasReceipt,
             sparkleFeedURL: feedURL,
-            electronUpdateConfig: electronConfig
+            electronUpdateConfig: electronConfig,
+            sparklePublicEDKey: publicEDKey
         )
     }
 }

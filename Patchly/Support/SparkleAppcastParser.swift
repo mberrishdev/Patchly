@@ -3,6 +3,8 @@ import Foundation
 struct SparkleAppcastItem: Sendable, Equatable {
     let version: String?
     let shortVersionString: String?
+    let enclosureURL: URL?
+    let edSignatureBase64: String?
 }
 
 /// Parses a Sparkle appcast XML feed belonging to another app. Patchly only reads
@@ -11,6 +13,8 @@ final class SparkleAppcastParser: NSObject, XMLParserDelegate, @unchecked Sendab
     private var items: [SparkleAppcastItem] = []
     private var currentVersion: String?
     private var currentShortVersionString: String?
+    private var currentEnclosureURL: URL?
+    private var currentEdSignatureBase64: String?
     private var currentElementText = ""
     private var isInsideItem = false
 
@@ -22,10 +26,18 @@ final class SparkleAppcastParser: NSObject, XMLParserDelegate, @unchecked Sendab
         return delegate.items
     }
 
-    /// The highest version across all items, preferring `shortVersionString` over `version`.
+    /// The item with the highest version across all items, preferring
+    /// `shortVersionString` over `version` for comparison.
+    static func latestItem(among items: [SparkleAppcastItem]) -> SparkleAppcastItem? {
+        items.max { lhs, rhs in
+            let lhsVersion = lhs.shortVersionString ?? lhs.version ?? ""
+            let rhsVersion = rhs.shortVersionString ?? rhs.version ?? ""
+            return VersionComparator.compare(lhsVersion, rhsVersion) == .orderedAscending
+        }
+    }
+
     static func latestVersion(among items: [SparkleAppcastItem]) -> String? {
-        let candidates = items.compactMap { $0.shortVersionString ?? $0.version }
-        return candidates.max { VersionComparator.compare($0, $1) == .orderedAscending }
+        latestItem(among: items).flatMap { $0.shortVersionString ?? $0.version }
     }
 
     func parser(
@@ -39,10 +51,16 @@ final class SparkleAppcastParser: NSObject, XMLParserDelegate, @unchecked Sendab
             isInsideItem = true
             currentVersion = nil
             currentShortVersionString = nil
+            currentEnclosureURL = nil
+            currentEdSignatureBase64 = nil
         }
         if elementName == "enclosure", isInsideItem {
             for (key, value) in attributeDict {
-                if key.hasSuffix("shortVersionString") {
+                if key == "url" {
+                    currentEnclosureURL = URL(string: value)
+                } else if key.hasSuffix("edSignature") {
+                    currentEdSignatureBase64 = value
+                } else if key.hasSuffix("shortVersionString") {
                     currentShortVersionString = value
                 } else if key.hasSuffix("version") {
                     currentVersion = value
@@ -73,7 +91,12 @@ final class SparkleAppcastParser: NSObject, XMLParserDelegate, @unchecked Sendab
             }
         }
         if elementName == "item" {
-            items.append(SparkleAppcastItem(version: currentVersion, shortVersionString: currentShortVersionString))
+            items.append(SparkleAppcastItem(
+                version: currentVersion,
+                shortVersionString: currentShortVersionString,
+                enclosureURL: currentEnclosureURL,
+                edSignatureBase64: currentEdSignatureBase64
+            ))
             isInsideItem = false
         }
     }

@@ -4,7 +4,6 @@ Patchly is a native macOS menu bar utility that scans installed applications and
 
 Patchly targets macOS 26 on Apple Silicon. It does not ship an Intel executable.
 Patchly is a menu-bar-only app with no persistent Dock icon.
-The first implementation milestone reports update status only; it does not install updates on the user's behalf.
 
 ## Architecture
 
@@ -51,6 +50,12 @@ _Avoid_: Database, history
 **Badge Count**: The number of Scanned Apps currently in Update Available status, shown next to the menu bar icon.
 _Avoid_: Notification count, alert count
 
+**Update Action**: How Patchly installs a Scanned App's available update: running `brew upgrade --cask` (Homebrew Cask Source), running `mas upgrade` (Mac App Store Source), or activating the app so its own linked updater runs (Electron Source, Sparkle Feed Source).
+_Avoid_: Install method (that term is reserved for Update Source, the detection origin — Update Action is what happens when the user asks to install)
+
+**Selection**: The set of Scanned Apps the user has checked in the dropdown for a batch Update Action, independent of Update Status or Update Source.
+_Avoid_: Multi-select (describes the UI gesture, not the domain concept)
+
 ## Relationships
 
 - A Scanned App with a Mac App Store receipt is always attributed to the Mac App Store Source, even if it would also match a Homebrew Cask or declare a `SUFeedURL`
@@ -74,16 +79,29 @@ _Avoid_: Notification count, alert count
 - The dropdown list sorts Update Available apps first, then Unknown — mas Missing, then Check Failed, then Up to Date, then Unknown — No Source
 - Within each status group, apps sort alphabetically by name
 - The Badge Count reflects only Update Available apps; Unknown and Check Failed states never contribute to it
-- Clicking a Scanned App row reveals it in Finder; Patchly does not install, launch an updater, or run `brew upgrade`/`mas upgrade` on the user's behalf in this milestone
-- Patchly makes no changes to any other app's files; every external command it runs is read-only except the explicit, user-initiated `brew install mas` action
+- Clicking a Scanned App row reveals it in Finder
+- A Homebrew Cask Source app's Update Action is `brew upgrade --cask <token>`; a Mac App Store Source app's is `mas upgrade <app ID>` — both hand off to a CLI that already downloads, verifies, and installs
+- A Sparkle Feed Source app whose appcast item has an enclosure URL and an EdDSA signature, and whose own `Info.plist` declares a `SUPublicEDKey`, gets a direct-install Update Action: Patchly downloads the enclosure, verifies its Ed25519 signature against that public key (the same scheme and raw-file-bytes verification Sparkle's own `SUSignatureVerifier` uses), and only on success quits the app if running, replaces its bundle, and relaunches it
+- A Sparkle Feed Source app missing any of those three things (enclosure URL, EdDSA signature, or its own public key) falls back to activating the app so its own updater runs instead — this is not an error, just a coverage gap for apps that don't publish everything needed to verify
+- A Sparkle Feed Source app's signature verification failing is treated as Check Failed, never as a reason to fall back to activating the app — a failed verification means the download shouldn't be trusted, not that Patchly should try something else with it
+- An Electron Source app's Update Action always activates the app so its own linked updater runs; Patchly never downloads an update artifact or replaces an Electron app's bundle itself — reimplementing electron-updater's own update verification is a real security liability (it has a documented signature-bypass history) Patchly avoids taking on for a "best-effort activate the app" feature
+- The fallback path (activating the app without a direct install) first clears that app's `SULastCheckTime` default — Sparkle's own documented way to bypass its 24-hour check throttle — so it reliably triggers an immediate check instead of possibly doing nothing; a missing key is not an error. The direct-install path's post-success relaunch skips this, since the app was just verified and replaced with the latest version — there's nothing left to check for
+- Clicking Update on a single Scanned App row runs its Update Action immediately, no confirmation
+- Checking multiple Scanned Apps and clicking Update Selected shows a confirmation before running every selected app's Update Action
+- A failed Update Action sets that Scanned App's Update Status to Check Failed with the failure reason, reusing the existing Check Failed UI rather than a separate error surface
+- After a batch of Update Actions completes with at least one success — of any kind, including the fallback activate-only path — Patchly runs a full Refresh, since a Homebrew/Mac App Store install can change more than just the installed app (e.g. local tap metadata)
+- A Sparkle Feed Source app's direct-install Update Action quits that app first if it's running, so its bundle isn't replaced out from under a live process; it escalates from a graceful to a forced quit, and gives up (Check Failed) rather than replacing files under a process that won't exit
+- Patchly makes no changes to any other app's files outside an explicit, user-initiated Update Action or the `brew install mas` action
 - Patchly self-updates via Sparkle, checked separately from the Refresh cycle: automatically (user-configurable in Settings) and on manual request from the menu bar dropdown or Settings; this never affects Scanned Apps or the Cache Snapshot
 
 ## Flagged ambiguities
 
-- One-click "install this update" per source is deferred; each source's update mechanism (`brew upgrade --cask`, `mas upgrade`, launching the target app's own Sparkle updater) needs its own confirmation/progress/error handling and is out of scope for the first milestone
 - Whether Patchly should also scan one level of subfolders inside `/Applications` (some vendors nest `.app` bundles) is unresolved; v1 only scans top-level `.app` bundles in each root directory
+- Activating an app as the fallback Update Action doesn't guarantee an update actually happens — the app's own updater might not check immediately, or the user might quit it first. Patchly has no way to confirm the update completed; the Refresh that follows (every successful Update Action triggers one, not just verified ones) can easily just report the same old version if the app's own update hasn't landed yet by then
 - The Electron Source's `provider: github` check uses the unauthenticated GitHub Releases API (60 requests/hour per IP); with many GitHub-provider apps installed and frequent Refreshes this could get rate-limited — accepted for now since it degrades to Check Failed rather than breaking anything, revisit only if it becomes a real problem
 - Many Electron apps ship a custom updater with no `app-update.yml` at all (seen firsthand: Discord ships its own native updater module) and are never attributed to the Electron Source — this is an inherent coverage gap, not a bug to chase
+- A Sparkle Feed Source direct-install Update Action quitting a running app can lose that app's unsaved state (open documents, browser tabs the app doesn't itself persist, in-progress work) — clicking Update on a single row runs immediately with no confirmation, same as every other Update Action, so this real consequence isn't surfaced to the user before it happens. Whether direct-install specifically deserves its own confirmation, distinct from the general single-row-runs-immediately rule, is unresolved
+- Patchly only handles the common case of a Sparkle update archive containing exactly one `.app` at its top level (or, for a `.dmg`, mounted at its top level); an update packaged as an installer `.pkg`, or with additional non-`.app` payloads Sparkle's own updater would normally handle, isn't supported — falls back to Check Failed, not silently ignored
 
 ## Example dialogue
 

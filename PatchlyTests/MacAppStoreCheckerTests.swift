@@ -7,8 +7,15 @@ final class MacAppStoreCheckerTests: XCTestCase {
         let entries = MacAppStoreChecker.parseOutdated(from: output)
         XCTAssertEqual(
             entries,
-            [MasOutdatedEntry(name: "Example App", installedVersion: "1.2.3", latestVersion: "1.3.0")]
+            [MasOutdatedEntry(appID: "1234567890", name: "Example App", installedVersion: "1.2.3", latestVersion: "1.3.0")]
         )
+    }
+
+    func testMatchResultsAttachesMasUpgradeAction() {
+        let outdated = [MasOutdatedEntry(appID: "1234567890", name: "Example App", installedVersion: "1.2.3", latestVersion: "1.3.0")]
+        let apps = [app(name: "Example App", path: "/Applications/Example App.app")]
+        let results = MacAppStoreChecker.matchResults(outdated: outdated, apps: apps)
+        XCTAssertEqual(results["/Applications/Example App.app"]?.action, .runMasUpgrade(appID: "1234567890"))
     }
 
     func testMatchResultsFlagsMissingEntryAsUpToDate() {

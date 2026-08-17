@@ -46,14 +46,30 @@ private func checkSingle(_ app: DiscoveredApp, session: URLSession) async -> Upd
     do {
         let (data, _) = try await session.data(from: feedURL)
         let items = SparkleAppcastParser.parse(data: data)
-        guard let latest = SparkleAppcastParser.latestVersion(among: items) else {
+        guard let latestItem = SparkleAppcastParser.latestItem(among: items),
+              let latest = latestItem.shortVersionString ?? latestItem.version
+        else {
             return UpdateCheckResult(status: .checkFailed(reason: "No versioned items in appcast"))
         }
-        if VersionComparator.isVersion(latest, greaterThan: app.installedVersion) {
-            return UpdateCheckResult(status: .updateAvailable(latestVersion: latest))
+        guard VersionComparator.isVersion(latest, greaterThan: app.installedVersion) else {
+            return UpdateCheckResult(status: .upToDate)
         }
-        return UpdateCheckResult(status: .upToDate)
+        return UpdateCheckResult(status: .updateAvailable(latestVersion: latest), action: updateAction(for: latestItem, app: app))
     } catch {
         return UpdateCheckResult(status: .checkFailed(reason: error.localizedDescription))
     }
+}
+
+/// Direct install requires everything needed to verify the download before
+/// it's trusted: an enclosure URL, its EdDSA signature, and the app's own
+/// public key. Missing any of those falls back to just activating the app —
+/// there's nothing unsafe about that path, it just can't be verified.
+private func updateAction(for item: SparkleAppcastItem, app: DiscoveredApp) -> UpdateAction {
+    guard let enclosureURL = item.enclosureURL,
+          let edSignatureBase64 = item.edSignatureBase64,
+          let publicKeyBase64 = app.sparklePublicEDKey
+    else {
+        return .launchApp
+    }
+    return .installSparkleUpdate(enclosureURL: enclosureURL, edSignatureBase64: edSignatureBase64, publicKeyBase64: publicKeyBase64)
 }

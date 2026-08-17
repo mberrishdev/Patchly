@@ -48,19 +48,21 @@ struct MacAppStoreChecker: UpdateSource {
     /// Parses lines like `1234567890 App Name (1.2.3) -> 1.3.0`.
     /// `mas` has no stable JSON output for `outdated`.
     static func parseOutdated(from output: String) -> [MasOutdatedEntry] {
-        let pattern = #"^\d+\s+(.+?)\s+\(([^)]+)\)\s+->\s+(.+)$"#
+        let pattern = #"^(\d+)\s+(.+?)\s+\(([^)]+)\)\s+->\s+(.+)$"#
         guard let regex = try? NSRegularExpression(pattern: pattern) else { return [] }
 
         return output.split(separator: "\n").compactMap { line in
             let line = String(line)
             let range = NSRange(line.startIndex..<line.endIndex, in: line)
             guard let match = regex.firstMatch(in: line, range: range),
-                  let nameRange = Range(match.range(at: 1), in: line),
-                  let installedRange = Range(match.range(at: 2), in: line),
-                  let latestRange = Range(match.range(at: 3), in: line)
+                  let idRange = Range(match.range(at: 1), in: line),
+                  let nameRange = Range(match.range(at: 2), in: line),
+                  let installedRange = Range(match.range(at: 3), in: line),
+                  let latestRange = Range(match.range(at: 4), in: line)
             else { return nil }
 
             return MasOutdatedEntry(
+                appID: String(line[idRange]),
                 name: String(line[nameRange]).trimmingCharacters(in: .whitespaces),
                 installedVersion: String(line[installedRange]).trimmingCharacters(in: .whitespaces),
                 latestVersion: String(line[latestRange]).trimmingCharacters(in: .whitespaces)
@@ -77,7 +79,10 @@ struct MacAppStoreChecker: UpdateSource {
         var results: [String: UpdateCheckResult] = [:]
         for app in apps {
             if let entry = entryByName[app.name.lowercased()] {
-                results[app.bundlePath] = UpdateCheckResult(status: .updateAvailable(latestVersion: entry.latestVersion))
+                results[app.bundlePath] = UpdateCheckResult(
+                    status: .updateAvailable(latestVersion: entry.latestVersion),
+                    action: .runMasUpgrade(appID: entry.appID)
+                )
             } else {
                 results[app.bundlePath] = UpdateCheckResult(status: .upToDate)
             }
@@ -87,6 +92,7 @@ struct MacAppStoreChecker: UpdateSource {
 }
 
 struct MasOutdatedEntry: Sendable, Equatable {
+    let appID: String
     let name: String
     let installedVersion: String
     let latestVersion: String

@@ -57,7 +57,7 @@ actor UpdateAggregator {
         let now = Date()
 
         return discovered.map { app in
-            let (source, status) = attribute(app: app, mas: mas, homebrew: homebrew, electron: electron, sparkle: sparkle)
+            let (source, status, action) = attribute(app: app, mas: mas, homebrew: homebrew, electron: electron, sparkle: sparkle)
             return ScannedApp(
                 id: app.bundleIdentifier ?? app.bundlePath,
                 name: app.name,
@@ -66,7 +66,8 @@ actor UpdateAggregator {
                 installedVersion: app.installedVersion,
                 source: source,
                 updateStatus: status,
-                lastCheckedAt: now
+                lastCheckedAt: now,
+                updateAction: action
             )
         }
     }
@@ -77,19 +78,22 @@ actor UpdateAggregator {
         homebrew: [String: UpdateCheckResult],
         electron: [String: UpdateCheckResult],
         sparkle: [String: UpdateCheckResult]
-    ) -> (AppSource, UpdateStatus) {
+    ) -> (AppSource, UpdateStatus, UpdateAction?) {
         if app.hasMacAppStoreReceipt {
-            return (.macAppStore, mas[app.bundlePath]?.status ?? .unknownMasCliMissing)
+            let result = mas[app.bundlePath]
+            return (.macAppStore, result?.status ?? .unknownMasCliMissing, result?.action)
         }
         if let result = homebrew[app.bundlePath] {
-            return (.homebrewCask, result.status)
+            return (.homebrewCask, result.status, result.action)
         }
         if app.electronUpdateConfig != nil {
-            return (.electron, electron[app.bundlePath]?.status ?? .checkFailed(reason: "No result"))
+            let result = electron[app.bundlePath]
+            return (.electron, result?.status ?? .checkFailed(reason: "No result"), result?.action)
         }
         if app.sparkleFeedURL != nil {
-            return (.sparkleFeed, sparkle[app.bundlePath]?.status ?? .checkFailed(reason: "No result"))
+            let result = sparkle[app.bundlePath]
+            return (.sparkleFeed, result?.status ?? .checkFailed(reason: "No result"), result?.action)
         }
-        return (.unknown, .unknownNoSource)
+        return (.unknown, .unknownNoSource, nil)
     }
 }

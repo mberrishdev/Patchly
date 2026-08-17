@@ -20,7 +20,7 @@ Freshly scaffolded: project structure, folder layout, and docs are in place, loo
 - `Patchly/Models/` — `ScannedApp` (the merged, displayable record) and `DiscoveredApp` (the scan-only intermediate, before any Update Source is attributed)
 - `Patchly/Scanner/` — `ApplicationScanner` (enumerates the three app directories, reads Info.plist) and `UpdateAggregator` (runs all Update Sources concurrently, applies the Mac App Store > Homebrew Cask > Electron > Sparkle Feed priority from `CONTEXT.md`)
 - `Patchly/UpdateSources/` — one file per source (`HomebrewCaskChecker`, `MacAppStoreChecker`, `ElectronUpdateChecker`, `SparkleFeedChecker`), each independently unit-testable behind the shared `UpdateSource` protocol
-- `Patchly/Support/` — `ProcessRunner` (async wrapper over `Process`), `ExecutableLocator` (finds `brew`/`mas` without relying on inherited `$PATH`), `VersionComparator`, `SparkleAppcastParser`, `ElectronUpdateConfigParser` (parses `app-update.yml`), `Collection+Chunked` (bounds concurrent feed fetches)
+- `Patchly/Support/` — `ProcessRunner` (async wrapper over `Process`), `ExecutableLocator` (finds `brew`/`mas` without relying on inherited `$PATH`), `VersionComparator`, `SparkleAppcastParser`, `ElectronUpdateConfigParser` (parses `app-update.yml`), `Collection+Chunked` (bounds concurrent feed fetches), `UpdateInstaller` (runs a Scanned App's Update Action — dispatches to the below or to `brew upgrade`/`mas upgrade`/activating the app), `SparkleDirectInstaller` (downloads + verifies with CryptoKit's `Curve25519.Signing` (Ed25519) + installs a Sparkle app's update — see CONTEXT.md for exactly what it verifies before touching anything)
 - `Patchly/Persistence/` — `CacheStore`, the Cache Snapshot JSON read/write
 - `Patchly/State/` — `AppState`, the `@MainActor` published source of truth the UI observes, owns the refresh timer and wake-notification subscription
 - `Patchly/UI/` — `MenuBarLabelView` (icon + Badge Count), `MenuBarContentView` (dropdown root), `AppRowView`, `SourceBadgeView`
@@ -35,8 +35,8 @@ Freshly scaffolded: project structure, folder layout, and docs are in place, loo
 
 1. ~~Scaffold Xcode project + folder layout~~ done
 2. Scanner + all three Update Sources + Aggregator, unit-tested independently — next
-3. Cache-first UI with manual/auto Refresh
-4. One-click update actions per source (deferred, needs its own design pass)
+3. ~~Cache-first UI with manual/auto Refresh~~ done
+4. ~~One-click update actions per source~~ done — Homebrew/Mac App Store via CLI, Sparkle/Electron by activating the app; checkbox multi-select + Update Selected
 5. ~~Self-update via Sparkle (Settings toggle, manual check, signed appcast on release)~~ done
 
 ## Agent skills

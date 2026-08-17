@@ -10,6 +10,10 @@ struct DiscoveredApp: Hashable, Sendable {
     let hasMacAppStoreReceipt: Bool
     let sparkleFeedURL: URL?
     let electronUpdateConfig: ElectronUpdateConfig?
+    /// The app's own EdDSA public key (`SUPublicEDKey`, base64), if it declares
+    /// one — needed to verify a Sparkle update before Patchly installs it
+    /// directly. See CONTEXT.md.
+    let sparklePublicEDKey: String?
 
     init(
         name: String,
@@ -18,7 +22,8 @@ struct DiscoveredApp: Hashable, Sendable {
         installedVersion: String,
         hasMacAppStoreReceipt: Bool,
         sparkleFeedURL: URL?,
-        electronUpdateConfig: ElectronUpdateConfig? = nil
+        electronUpdateConfig: ElectronUpdateConfig? = nil,
+        sparklePublicEDKey: String? = nil
     ) {
         self.name = name
         self.bundlePath = bundlePath
@@ -27,6 +32,7 @@ struct DiscoveredApp: Hashable, Sendable {
         self.hasMacAppStoreReceipt = hasMacAppStoreReceipt
         self.sparkleFeedURL = sparkleFeedURL
         self.electronUpdateConfig = electronUpdateConfig
+        self.sparklePublicEDKey = sparklePublicEDKey
     }
 
     var bundleFilename: String {

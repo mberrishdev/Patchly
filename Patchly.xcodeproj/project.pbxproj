@@ -31,8 +31,10 @@
 		8755C357A1975FE254CDADBB /* CacheStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 318A19726094A6682B93E177 /* CacheStore.swift */; };
 		8B776813435C6BF51050DD4E /* ApplicationScannerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AEEB32235E435898E2DF0DA /* ApplicationScannerTests.swift */; };
 		8CAC3E47A6002FD3FB22CE2B /* AppRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEB75D6A3842108410237F1 /* AppRowView.swift */; };
+		94F36ECB51EF67E7B0475489 /* SparkleDirectInstallerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CF0EBB12A9EA2694E8DE7B /* SparkleDirectInstallerTests.swift */; };
 		954A506E96234FAA8F0AA76C /* SourceBadgeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76B553C0B220346509CBD25C /* SourceBadgeView.swift */; };
 		988057505A1A6C8DD5165B31 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 82B8D3EF3B02CC9FC09B4BD6 /* Sparkle */; };
+		A4B7BED18E2121E2EE152E07 /* SparkleDirectInstaller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8744FCA5D7FC285AC75AAF9F /* SparkleDirectInstaller.swift */; };
 		AEBE5F3CC0718B53675F1AA4 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF50983CE36CBE57203F1405 /* AppSettings.swift */; };
 		AFE19BE3A7D2D0BA7C856711 /* ApplicationScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3247E12A55E04A500DBDD008 /* ApplicationScanner.swift */; };
 		BCDEEE537A66606C12F7152C /* UpdateSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2D058A1667501D51294FF80 /* UpdateSource.swift */; };
@@ -40,7 +42,9 @@
 		C42C8BDC6BB6C71AC9C11339 /* DiscoveredApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7ADF49836A71C2D4835DB83 /* DiscoveredApp.swift */; };
 		C489CDA9D591D7DAD311521B /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F875000E4B6BC8893602470 /* SettingsView.swift */; };
 		C4BB916DEF8F1D9E247F129C /* HomebrewCaskChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F1FEEEDCD6959330CA39F8D /* HomebrewCaskChecker.swift */; };
+		CEC7AB43DCBCD49642E9EFB1 /* UpdateInstallerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 700604D5BEA9C6B3D7A4D0FD /* UpdateInstallerTests.swift */; };
 		CFF5AA9B7D24F726AB12B082 /* SparkleFeedChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4A4D6B5A6353473001D01F2 /* SparkleFeedChecker.swift */; };
+		F13AC3DC0110D67780BACD3E /* UpdateInstaller.swift in Sources */ = {isa = PBXBuildFile; fileRef = B128FE44C3D9E82E4849C1D8 /* UpdateInstaller.swift */; };
 		F3C9E197390A3B9436571ECE /* ProcessRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 615E4AC58EA9440DEB740F79 /* ProcessRunner.swift */; };
 		FB1089ACE31250751A5015F9 /* MacAppStoreCheckerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BD94FB6F69FC7AA8488D13C /* MacAppStoreCheckerTests.swift */; };
 /* End PBXBuildFile section */
@@ -79,13 +83,17 @@
 		642F0C625F8318A6F3321591 /* SettingsUpdatesTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsUpdatesTab.swift; sourceTree = "<group>"; };
 		6C1A768A75FE3CB0CBC2C83B /* ExecutableLocator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExecutableLocator.swift; sourceTree = "<group>"; };
 		6E4970BDAE8A8F6F786D1F49 /* AppVersion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppVersion.swift; sourceTree = "<group>"; };
+		700604D5BEA9C6B3D7A4D0FD /* UpdateInstallerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateInstallerTests.swift; sourceTree = "<group>"; };
 		76B553C0B220346509CBD25C /* SourceBadgeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourceBadgeView.swift; sourceTree = "<group>"; };
 		7F6C5F92731D33BC7E452D7A /* SparkleAppcastParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SparkleAppcastParser.swift; sourceTree = "<group>"; };
 		85E08C3326B2247D912741CD /* SettingsCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsCard.swift; sourceTree = "<group>"; };
+		8744FCA5D7FC285AC75AAF9F /* SparkleDirectInstaller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SparkleDirectInstaller.swift; sourceTree = "<group>"; };
 		9030A1FBEE66DE4AB486E5D7 /* MenuBarContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarContentView.swift; sourceTree = "<group>"; };
 		9C5CF24FBCA4671C54FD7452 /* PatchlyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PatchlyApp.swift; sourceTree = "<group>"; };
 		9EEB75D6A3842108410237F1 /* AppRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRowView.swift; sourceTree = "<group>"; };
 		9FA060E772F1F78705E61189 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		B128FE44C3D9E82E4849C1D8 /* UpdateInstaller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateInstaller.swift; sourceTree = "<group>"; };
+		B5CF0EBB12A9EA2694E8DE7B /* SparkleDirectInstallerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SparkleDirectInstallerTests.swift; sourceTree = "<group>"; };
 		BBBB13B040B60426034E3306 /* VersionComparatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VersionComparatorTests.swift; sourceTree = "<group>"; };
 		D2D058A1667501D51294FF80 /* UpdateSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateSource.swift; sourceTree = "<group>"; };
 		D4A4D6B5A6353473001D01F2 /* SparkleFeedChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SparkleFeedChecker.swift; sourceTree = "<group>"; };
@@ -150,6 +158,8 @@
 				6C1A768A75FE3CB0CBC2C83B /* ExecutableLocator.swift */,
 				615E4AC58EA9440DEB740F79 /* ProcessRunner.swift */,
 				7F6C5F92731D33BC7E452D7A /* SparkleAppcastParser.swift */,
+				8744FCA5D7FC285AC75AAF9F /* SparkleDirectInstaller.swift */,
+				B128FE44C3D9E82E4849C1D8 /* UpdateInstaller.swift */,
 				45E9C05B0991D5D85B4EC4E3 /* VersionComparator.swift */,
 			);
 			path = Support;
@@ -163,6 +173,8 @@
 				28B2EFAB29773DA1D8EA9AB5 /* HomebrewCaskCheckerTests.swift */,
 				3BD94FB6F69FC7AA8488D13C /* MacAppStoreCheckerTests.swift */,
 				0839D6494DEC9F6C449ECD9A /* SparkleAppcastParserTests.swift */,
+				B5CF0EBB12A9EA2694E8DE7B /* SparkleDirectInstallerTests.swift */,
+				700604D5BEA9C6B3D7A4D0FD /* UpdateInstallerTests.swift */,
 				BBBB13B040B60426034E3306 /* VersionComparatorTests.swift */,
 			);
 			path = PatchlyTests;
@@ -286,7 +298,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 1430;
+				LastUpgradeCheck = 2660;
 				TargetAttributes = {
 					2EBA42A7ABCB700468C6C046 = {
 						ProvisioningStyle = Automatic;
@@ -359,8 +371,10 @@
 				C489CDA9D591D7DAD311521B /* SettingsView.swift in Sources */,
 				954A506E96234FAA8F0AA76C /* SourceBadgeView.swift in Sources */,
 				2F74EE79ACD67A2648A3CE2F /* SparkleAppcastParser.swift in Sources */,
+				A4B7BED18E2121E2EE152E07 /* SparkleDirectInstaller.swift in Sources */,
 				CFF5AA9B7D24F726AB12B082 /* SparkleFeedChecker.swift in Sources */,
 				2B4DD6AAC8DE3CFAE6450268 /* UpdateAggregator.swift in Sources */,
+				F13AC3DC0110D67780BACD3E /* UpdateInstaller.swift in Sources */,
 				BCDEEE537A66606C12F7152C /* UpdateSource.swift in Sources */,
 				7C7D5F30DF1957E7FF83A80C /* VersionComparator.swift in Sources */,
 			);
@@ -375,6 +389,8 @@
 				765A63C58CD2B12D07EA28CD /* HomebrewCaskCheckerTests.swift in Sources */,
 				FB1089ACE31250751A5015F9 /* MacAppStoreCheckerTests.swift in Sources */,
 				3CF72A49788B4F79F71ADE3B /* SparkleAppcastParserTests.swift in Sources */,
+				94F36ECB51EF67E7B0475489 /* SparkleDirectInstallerTests.swift in Sources */,
+				CEC7AB43DCBCD49642E9EFB1 /* UpdateInstallerTests.swift in Sources */,
 				2C298F8195DEAFEBCF46B1B6 /* VersionComparatorTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -394,7 +410,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = arm64;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -430,6 +445,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -448,9 +464,10 @@
 				MARKETING_VERSION = 0.0.5;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				ONLY_ACTIVE_ARCH = NO;
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_STRICT_CONCURRENCY = complete;
@@ -524,7 +541,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = arm64;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -560,6 +576,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -575,6 +592,7 @@
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_STRICT_CONCURRENCY = complete;

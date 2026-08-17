@@ -10,6 +10,24 @@ struct ScannedApp: Identifiable, Codable, Hashable, Sendable {
     var source: AppSource
     var updateStatus: UpdateStatus
     var lastCheckedAt: Date?
+    /// How to actually install this app's update, if Patchly knows how.
+    /// See CONTEXT.md's Relationships section for what each case does.
+    var updateAction: UpdateAction? = nil
+}
+
+enum UpdateAction: Codable, Hashable, Sendable {
+    case runBrewUpgrade(caskToken: String)
+    case runMasUpgrade(appID: String)
+    /// Patchly downloads the appcast enclosure, verifies its EdDSA (Ed25519)
+    /// signature against the app's own declared public key, and — only if
+    /// that succeeds — replaces the app itself. Falls back to `.launchApp`
+    /// when the app or its appcast doesn't publish everything needed to
+    /// verify. See CONTEXT.md.
+    case installSparkleUpdate(enclosureURL: URL, edSignatureBase64: String, publicKeyBase64: String)
+    /// Electron apps have no CLI handoff and no equivalent safe verification
+    /// path — Patchly activates the app and its own linked updater takes
+    /// over. Also the Sparkle Feed Source's fallback when it can't verify.
+    case launchApp
 }
 
 enum AppSource: String, Codable, Hashable, Sendable {

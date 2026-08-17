@@ -6,6 +6,7 @@ struct MenuBarContentView: View {
     @ObservedObject var updater: AppUpdater
     @Environment(\.openSettings) private var openSettings
     @Environment(\.dismiss) private var dismiss
+    @State private var showBatchUpdateConfirm = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -17,9 +18,17 @@ struct MenuBarContentView: View {
                 ScrollView {
                     LazyVStack(spacing: 0) {
                         ForEach(appState.sortedApps) { app in
-                            AppRowView(app: app) {
-                                Task { await appState.installMasCLI() }
-                            }
+                            AppRowView(
+                                app: app,
+                                isSelected: app.updateStatus.isUpdateAvailable ? selectionBinding(for: app) : nil,
+                                isInstalling: appState.installingBundlePaths.contains(app.bundlePath),
+                                onUpdate: {
+                                    Task { await appState.installUpdates(for: [app.bundlePath]) }
+                                },
+                                onInstallMas: {
+                                    Task { await appState.installMasCLI() }
+                                }
+                            )
                             Divider()
                         }
                     }
@@ -28,11 +37,57 @@ struct MenuBarContentView: View {
                 // MenuBarExtra `.window` popover, and it can collapse to zero height.
                 // Compute an explicit height from row count instead.
                 .frame(height: listHeight)
+
+                if !appState.selectedBundlePaths.isEmpty {
+                    Divider()
+                    selectionBar
+                }
             }
             Divider()
             footer
         }
         .frame(width: 340)
+    }
+
+    private func selectionBinding(for app: ScannedApp) -> Binding<Bool> {
+        Binding(
+            get: { appState.selectedBundlePaths.contains(app.bundlePath) },
+            set: { isOn in
+                if isOn {
+                    appState.selectedBundlePaths.insert(app.bundlePath)
+                } else {
+                    appState.selectedBundlePaths.remove(app.bundlePath)
+                }
+            }
+        )
+    }
+
+    private var selectionBar: some View {
+        HStack {
+            Text("\(appState.selectedBundlePaths.count) selected")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            Spacer()
+            Button("Update Selected") {
+                showBatchUpdateConfirm = true
+            }
+            .buttonStyle(.plain)
+            .font(.caption)
+            .foregroundStyle(.blue)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .confirmationDialog(
+            "Update \(appState.selectedBundlePaths.count) apps?",
+            isPresented: $showBatchUpdateConfirm,
+            titleVisibility: .visible
+        ) {
+            Button("Update") {
+                let targets = appState.selectedBundlePaths
+                Task { await appState.installUpdates(for: targets) }
+            }
+            Button("Cancel", role: .cancel) {}
+        }
     }
 
     private var header: some View {
