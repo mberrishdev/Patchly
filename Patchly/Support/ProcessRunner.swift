@@ -76,6 +76,20 @@ struct ProcessRunner: ProcessRunning {
             }
             try? await Task.sleep(nanoseconds: 100_000_000)
         }
+
+        // SIGTERM above is a request, not a guarantee — a child stuck in an
+        // uninterruptible wait (or one that just ignores it) would otherwise
+        // leave `waitUntilExit()` below blocking forever, defeating the
+        // timeout entirely. Escalate to SIGKILL after a bounded grace period.
+        if process.isRunning {
+            let killDeadline = Date().addingTimeInterval(5)
+            while process.isRunning, Date() < killDeadline {
+                try? await Task.sleep(nanoseconds: 100_000_000)
+            }
+            if process.isRunning {
+                kill(process.processIdentifier, SIGKILL)
+            }
+        }
         process.waitUntilExit()
 
         // The reads above are already in flight (and likely already done,
