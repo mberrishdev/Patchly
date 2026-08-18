@@ -66,6 +66,8 @@
 		CEC7AB43DCBCD49642E9EFB1 /* UpdateInstallerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 700604D5BEA9C6B3D7A4D0FD /* UpdateInstallerTests.swift */; };
 		CFF5AA9B7D24F726AB12B082 /* SparkleFeedChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4A4D6B5A6353473001D01F2 /* SparkleFeedChecker.swift */; };
 		D10234771C1B1A70D570DC95 /* CacheStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32EA13E3971EB5F93AEFC1FA /* CacheStoreTests.swift */; };
+		64ED2F29C5634042895C9321 /* CLIToolUpdateAggregatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F90D81F53074773B81CEF7F /* CLIToolUpdateAggregatorTests.swift */; };
+		3DC1B036C8504ACCAC3A6A7D /* ProcessRunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5D63AA0C7BC4EF3AF7142DD /* ProcessRunnerTests.swift */; };
 		DE66BD2880668A81745548DF /* ElectronDirectInstaller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15C2498948BCB72E0EDD1337 /* ElectronDirectInstaller.swift */; };
 		E548DF4DCC8CBDF198867DFF /* LaunchAtLoginManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88EC336F4F5052B0F4FFFECF /* LaunchAtLoginManager.swift */; };
 		F13AC3DC0110D67780BACD3E /* UpdateInstaller.swift in Sources */ = {isa = PBXBuildFile; fileRef = B128FE44C3D9E82E4849C1D8 /* UpdateInstaller.swift */; };
@@ -98,6 +100,8 @@
 		318A19726094A6682B93E177 /* CacheStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CacheStore.swift; sourceTree = "<group>"; };
 		3247E12A55E04A500DBDD008 /* ApplicationScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationScanner.swift; sourceTree = "<group>"; };
 		32EA13E3971EB5F93AEFC1FA /* CacheStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CacheStoreTests.swift; sourceTree = "<group>"; };
+		3F90D81F53074773B81CEF7F /* CLIToolUpdateAggregatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLIToolUpdateAggregatorTests.swift; sourceTree = "<group>"; };
+		C5D63AA0C7BC4EF3AF7142DD /* ProcessRunnerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessRunnerTests.swift; sourceTree = "<group>"; };
 		3AEEB32235E435898E2DF0DA /* ApplicationScannerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationScannerTests.swift; sourceTree = "<group>"; };
 		3BD94FB6F69FC7AA8488D13C /* MacAppStoreCheckerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacAppStoreCheckerTests.swift; sourceTree = "<group>"; };
 		3E0B1E5AEAF3D8257F12969F /* ElectronUpdateManifestParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElectronUpdateManifestParser.swift; sourceTree = "<group>"; };
@@ -236,6 +240,7 @@
 				40F0411BABDB06B956994AAE /* AppSettingsTests.swift */,
 				32EA13E3971EB5F93AEFC1FA /* CacheStoreTests.swift */,
 				57F4F33972DF2BD3A3C9298C /* CLIToolScannerTests.swift */,
+				3F90D81F53074773B81CEF7F /* CLIToolUpdateAggregatorTests.swift */,
 				0582FC25770D05BFB1565D90 /* CustomAppSourceCheckerTests.swift */,
 				625E457D37A2F321BDAA722E /* ElectronDirectInstallerTests.swift */,
 				0E651F1203BD902FD91EE01D /* ElectronUpdateConfigParserTests.swift */,
@@ -243,6 +248,7 @@
 				28B2EFAB29773DA1D8EA9AB5 /* HomebrewCaskCheckerTests.swift */,
 				9664C23F424B2710F66C4EF4 /* HomebrewFormulaCheckerTests.swift */,
 				3BD94FB6F69FC7AA8488D13C /* MacAppStoreCheckerTests.swift */,
+				C5D63AA0C7BC4EF3AF7142DD /* ProcessRunnerTests.swift */,
 				0839D6494DEC9F6C449ECD9A /* SparkleAppcastParserTests.swift */,
 				B5CF0EBB12A9EA2694E8DE7B /* SparkleDirectInstallerTests.swift */,
 				700604D5BEA9C6B3D7A4D0FD /* UpdateInstallerTests.swift */,
@@ -480,6 +486,8 @@
 				8B776813435C6BF51050DD4E /* ApplicationScannerTests.swift in Sources */,
 				8AAB88480698A39689BF600D /* CLIToolScannerTests.swift in Sources */,
 				D10234771C1B1A70D570DC95 /* CacheStoreTests.swift in Sources */,
+				64ED2F29C5634042895C9321 /* CLIToolUpdateAggregatorTests.swift in Sources */,
+				3DC1B036C8504ACCAC3A6A7D /* ProcessRunnerTests.swift in Sources */,
 				42B5C7B94C48BA3C301675E3 /* CustomAppSourceCheckerTests.swift in Sources */,
 				C157A65F03F1DC935DC81E02 /* ElectronDirectInstallerTests.swift in Sources */,
 				245B30B5A7C9E06B26A339A4 /* ElectronUpdateConfigParserTests.swift in Sources */,
