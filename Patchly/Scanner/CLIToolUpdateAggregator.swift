@@ -38,6 +38,14 @@ actor CLIToolUpdateAggregator {
             if let result = homebrew[tool.name] {
                 tool.updateStatus = result.status
                 tool.updateAction = result.action
+            } else {
+                // A missing entry here means the check itself failed (e.g.
+                // `brew info` timed out or returned malformed JSON), not
+                // that the tool is unattributed — it's already known to be
+                // Homebrew-sourced by construction, so leaving the struct
+                // default `.unknownNoSource` in place would render
+                // identically to Up to Date and hide a real failure.
+                tool.updateStatus = .checkFailed(reason: "No result")
             }
             return tool
         }
