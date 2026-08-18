@@ -112,6 +112,16 @@ struct ElectronDirectInstaller: Sendable {
         }
     }
 
+    /// Requires an actual expected bundle identifier, same reasoning as
+    /// `teamIdentifier(ofBundleAt:)` requiring a real Team Identifier on
+    /// both sides: CONTEXT.md calls for the Team Identifier AND bundle
+    /// identifier to both be verified unconditionally, so a missing
+    /// expectation must fail this check, not skip it.
+    static func bundleIdentifiersMatch(actual: String?, expected: String?) -> Bool {
+        guard let expected else { return false }
+        return actual == expected
+    }
+
     private func download(_ url: URL) async throws -> Data {
         let (data, response) = try await session.data(from: url)
         guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
@@ -136,10 +146,8 @@ struct ElectronDirectInstaller: Sendable {
             throw ElectronDirectInstallError.teamIdentifierMismatch
         }
 
-        if let expectedBundleIdentifier {
-            guard Bundle(url: extractedAppURL)?.bundleIdentifier == expectedBundleIdentifier else {
-                throw ElectronDirectInstallError.bundleIdentifierMismatch
-            }
+        guard Self.bundleIdentifiersMatch(actual: Bundle(url: extractedAppURL)?.bundleIdentifier, expected: expectedBundleIdentifier) else {
+            throw ElectronDirectInstallError.bundleIdentifierMismatch
         }
     }
 

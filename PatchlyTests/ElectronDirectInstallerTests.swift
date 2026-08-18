@@ -42,4 +42,20 @@ final class ElectronDirectInstallerTests: XCTestCase {
 
         XCTAssertNoThrow(try ElectronDirectInstaller.verifyChecksum(fileData: data, expectedSHA512Base64: " \(expected)\n"))
     }
+
+    func testMatchingBundleIdentifiersPass() {
+        XCTAssertTrue(ElectronDirectInstaller.bundleIdentifiersMatch(actual: "com.example.app", expected: "com.example.app"))
+    }
+
+    func testMismatchedBundleIdentifiersFail() {
+        XCTAssertFalse(ElectronDirectInstaller.bundleIdentifiersMatch(actual: "com.example.app", expected: "com.other.app"))
+    }
+
+    func testNoExpectedBundleIdentifierFailsRatherThanSkippingTheCheck() {
+        // The installed app's own CFBundleIdentifier can be nil/malformed —
+        // that must fail verification, not silently skip it, since
+        // CONTEXT.md requires this check unconditionally before replacing a
+        // live app's bundle.
+        XCTAssertFalse(ElectronDirectInstaller.bundleIdentifiersMatch(actual: "com.example.app", expected: nil))
+    }
 }
