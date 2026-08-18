@@ -59,8 +59,9 @@ struct CLIToolRowView: View {
                     .font(.caption)
                     .foregroundStyle(.blue)
             }
-        case .checkFailed:
+        case .checkFailed(let reason):
             Circle().fill(Color.red).frame(width: 8, height: 8)
+                .help(reason)
         case .upToDate, .checking, .unknownNoSource, .unknownMasCliMissing:
             EmptyView()
         }

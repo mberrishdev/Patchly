@@ -80,8 +80,9 @@ struct AppRowView: View {
                     .font(.caption)
                     .foregroundStyle(.blue)
             }
-        case .checkFailed:
+        case .checkFailed(let reason):
             Circle().fill(Color.red).frame(width: 8, height: 8)
+                .help(reason)
         case .unknownMasCliMissing:
             Button("Install mas", action: onInstallMas)
                 .buttonStyle(.plain)
