@@ -32,6 +32,19 @@ final class CustomAppSourceCheckerTests: XCTestCase {
         XCTAssertTrue(results.isEmpty)
     }
 
+    func testDuplicateBundleIdentifiersInRegistryDoNotCrash() async {
+        // Dictionary(uniqueKeysWithValues:) would trap here — the first
+        // registered checker for a colliding identifier should just win.
+        let first = FakeCustomAppChecker(bundleIdentifier: "com.example.app", result: UpdateCheckResult(status: .upToDate))
+        let second = FakeCustomAppChecker(bundleIdentifier: "com.example.app", result: UpdateCheckResult(status: .checkFailed(reason: "should not be used")))
+        let checker = CustomAppSourceChecker(checkers: [first, second])
+        let app = discoveredApp(bundleIdentifier: "com.example.app", bundlePath: "/Applications/Example.app")
+
+        let results = await checker.checkUpdates(for: [app])
+
+        XCTAssertEqual(results["/Applications/Example.app"]?.status, .upToDate)
+    }
+
     func testEmptyRegistryProducesNoResultsWithoutCallingAnyChecker() async {
         let checker = CustomAppSourceChecker(checkers: [])
         let app = discoveredApp(bundleIdentifier: "com.example.app", bundlePath: "/Applications/Example.app")

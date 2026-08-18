@@ -24,7 +24,16 @@ struct CustomAppSourceChecker: UpdateSource {
     }
 
     func checkUpdates(for apps: [DiscoveredApp]) async -> [String: UpdateCheckResult] {
-        let checkersByBundleID = Dictionary(uniqueKeysWithValues: checkers.map { ($0.bundleIdentifier, $0) })
+        // Built by hand rather than `Dictionary(uniqueKeysWithValues:)`,
+        // which traps if two registry entries ever share a bundle
+        // identifier — a real possibility as more per-app checkers get
+        // added here over time, and not something a copy-paste mistake in
+        // this small registry should be able to crash the app over. The
+        // first entry registered for a given identifier wins.
+        var checkersByBundleID: [String: any CustomAppChecker] = [:]
+        for checker in checkers where checkersByBundleID[checker.bundleIdentifier] == nil {
+            checkersByBundleID[checker.bundleIdentifier] = checker
+        }
         let candidates: [(app: DiscoveredApp, checker: any CustomAppChecker)] = apps.compactMap { app in
             guard let bundleIdentifier = app.bundleIdentifier, let checker = checkersByBundleID[bundleIdentifier] else { return nil }
             return (app, checker)
