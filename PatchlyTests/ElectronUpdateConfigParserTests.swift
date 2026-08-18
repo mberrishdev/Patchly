@@ -47,8 +47,14 @@ final class ElectronUpdateConfigParserTests: XCTestCase {
         XCTAssertEqual(config, ElectronUpdateConfig(provider: .unsupported("generic")))
     }
 
-    func testNoProviderKeyReturnsNil() {
-        XCTAssertNil(ElectronUpdateConfigParser.parse("owner: SomeOrg\nrepo: SomeRepo"))
+    func testNoProviderKeyIsUnsupportedNotNil() {
+        // A missing `provider:` key means the file exists but is malformed,
+        // not that there's no Electron update config at all — this must
+        // still surface as Check Failed (via .unsupported), the same as an
+        // unrecognized provider value, rather than silently losing Electron
+        // Source attribution the way returning nil would.
+        let config = ElectronUpdateConfigParser.parse("owner: SomeOrg\nrepo: SomeRepo")
+        XCTAssertEqual(config, ElectronUpdateConfig(provider: .unsupported("(missing)")))
     }
 
     func testQuotedValuesAreUnwrapped() {

@@ -30,7 +30,16 @@ enum ElectronUpdateConfigParser {
             values[key] = unquote(rawValue)
         }
 
-        guard let providerName = values["provider"] else { return nil }
+        // A missing `provider:` key means the file exists but is malformed
+        // or hand-edited, not that it doesn't exist — `parse` is only ever
+        // called with a file's actual contents (see `ApplicationScanner`),
+        // so returning nil here would be indistinguishable from "not an
+        // Electron app" and silently lose Electron Source attribution
+        // instead of surfacing Check Failed like an unrecognized provider
+        // value already does below.
+        guard let providerName = values["provider"] else {
+            return ElectronUpdateConfig(provider: .unsupported("(missing)"))
+        }
 
         switch providerName {
         case "github":
