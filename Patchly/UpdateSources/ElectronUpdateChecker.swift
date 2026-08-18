@@ -122,7 +122,7 @@ private func fetchLatestGitHubRelease(owner: String, repo: String, session: URLS
         throw ElectronUpdateCheckerError.badResponse
     }
     let release = try JSONDecoder().decode(GitHubReleaseResponse.self, from: data)
-    let version = release.tagName.hasPrefix("v") ? String(release.tagName.dropFirst()) : release.tagName
+    let version = release.tagName.lowercased().hasPrefix("v") ? String(release.tagName.dropFirst()) : release.tagName
     return GitHubRelease(version: version, assets: release.assets)
 }
 
