@@ -24,6 +24,25 @@ final class MacAppStoreCheckerTests: XCTestCase {
         XCTAssertEqual(results["/Applications/Not Outdated.app"]?.status, .upToDate)
     }
 
+    func testTwoInstalledAppsSharingANameAreCheckFailedNotMismatched() {
+        // `mas outdated` identifies apps only by display name - if two
+        // installed apps share one, blindly matching by name could
+        // attribute the wrong App ID to the wrong app and upgrade the
+        // wrong one. Both should surface as Check Failed instead.
+        let outdated = [MasOutdatedEntry(appID: "111", name: "Example App", installedVersion: "1.0", latestVersion: "1.1")]
+        let apps = [
+            app(name: "Example App", path: "/Applications/Example App.app"),
+            app(name: "Example App", path: "/Applications/Utilities/Example App.app")
+        ]
+        let results = MacAppStoreChecker.matchResults(outdated: outdated, apps: apps)
+
+        for app in apps {
+            guard case .checkFailed = results[app.bundlePath]?.status else {
+                return XCTFail("\(app.bundlePath) should be checkFailed when its name is ambiguous")
+            }
+        }
+    }
+
     func testNonZeroExitWithStdoutIsCheckFailedNotUpToDate() async {
         // `mas` can exit non-zero while still printing something to stdout (a
         // warning, a partial line, a sign-in prompt) — that text must never

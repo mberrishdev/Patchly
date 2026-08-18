@@ -76,9 +76,25 @@ struct MacAppStoreChecker: UpdateSource {
             entryByName[entry.name.lowercased()] = entry
         }
 
+        // `mas outdated` identifies apps only by display name, with no
+        // bundle identifier or path to disambiguate — if two installed Mac
+        // App Store apps share a display name, matching by name alone risks
+        // attributing one app's update (and its App ID) to the other, and
+        // running `mas upgrade` against the wrong app. Count installed apps
+        // per name so that case can be caught instead of guessed at.
+        var appCountByName: [String: Int] = [:]
+        for app in apps {
+            appCountByName[app.name.lowercased(), default: 0] += 1
+        }
+
         var results: [String: UpdateCheckResult] = [:]
         for app in apps {
-            if let entry = entryByName[app.name.lowercased()] {
+            let key = app.name.lowercased()
+            if appCountByName[key, default: 0] > 1 {
+                results[app.bundlePath] = UpdateCheckResult(
+                    status: .checkFailed(reason: "multiple installed Mac App Store apps are named \"\(app.name)\" — can't tell which is which")
+                )
+            } else if let entry = entryByName[key] {
                 results[app.bundlePath] = UpdateCheckResult(
                     status: .updateAvailable(latestVersion: entry.latestVersion),
                     action: .runMasUpgrade(appID: entry.appID)
