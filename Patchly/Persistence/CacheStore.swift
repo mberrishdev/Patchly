@@ -43,4 +43,25 @@ struct CacheStore: Sendable {
 private struct CacheSnapshot: Codable {
     let apps: [ScannedApp]
     let cliTools: [CLITool]
+
+    init(apps: [ScannedApp], cliTools: [CLITool]) {
+        self.apps = apps
+        self.cliTools = cliTools
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case apps, cliTools
+    }
+
+    /// A decode failure in one array (e.g. an incompatible field added to
+    /// `ScannedApp` or `CLITool` in a later version, as already happened
+    /// once when CLI Tools were added) must not wipe the other — each key
+    /// decodes independently, falling back to empty on its own failure
+    /// instead of failing the whole snapshot and blanking both lists on an
+    /// otherwise-warm launch.
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        apps = (try? container.decode([ScannedApp].self, forKey: .apps)) ?? []
+        cliTools = (try? container.decode([CLITool].self, forKey: .cliTools)) ?? []
+    }
 }
