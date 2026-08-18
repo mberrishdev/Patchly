@@ -67,8 +67,15 @@ actor ApplicationScanner {
     }
 
     private func readApp(at bundleURL: URL) -> DiscoveredApp? {
-        guard let bundle = Bundle(url: bundleURL) else { return nil }
-        guard let info = bundle.infoDictionary else { return nil }
+        // Reads Info.plist directly rather than via `Bundle(url:)` —
+        // `Bundle` caches a bundle's Info.plist per path for the life of
+        // the process, so once Patchly (a long-running menu bar app) has
+        // read an app once, a later scan after that app's bundle was
+        // replaced (e.g. by `SparkleDirectInstaller`) would keep returning
+        // the pre-replacement version forever, making an installed update
+        // look like it never happened.
+        let infoPlistURL = bundleURL.appendingPathComponent("Contents/Info.plist")
+        guard let info = NSDictionary(contentsOf: infoPlistURL) as? [String: Any] else { return nil }
 
         let name = (info["CFBundleDisplayName"] as? String)
             ?? (info["CFBundleName"] as? String)
