@@ -272,9 +272,27 @@ final class AppState: ObservableObject {
             queue: .main
         ) { [weak self] _ in
             Task { @MainActor in
-                self?.refresh()
+                self?.refreshIfIntervalHasElapsedSinceLastRefresh()
             }
         }
+    }
+
+    /// A wake-from-sleep re-check only actually runs a Refresh if the
+    /// configured auto-refresh interval has elapsed since the last one —
+    /// otherwise a laptop that sleeps/wakes many times a day (lid closed
+    /// between short breaks) would refresh far more often than the user's
+    /// chosen interval, even though the timer itself already honors it.
+    /// The still-running timer task is unaffected either way: it keeps
+    /// counting toward its own next scheduled Refresh regardless of what
+    /// wake events do here.
+    private func refreshIfIntervalHasElapsedSinceLastRefresh() {
+        guard Self.shouldRefreshOnWake(lastRefreshDate: lastRefreshDate, intervalSeconds: settings.refreshIntervalSeconds, now: Date()) else { return }
+        refresh()
+    }
+
+    nonisolated static func shouldRefreshOnWake(lastRefreshDate: Date?, intervalSeconds: TimeInterval, now: Date) -> Bool {
+        guard let lastRefreshDate else { return true }
+        return now.timeIntervalSince(lastRefreshDate) >= intervalSeconds
     }
 
     deinit {
