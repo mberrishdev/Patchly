@@ -12,6 +12,10 @@
   <img src="https://github.com/mberrishdev/Patchly/actions/workflows/ci.yml/badge.svg" />
 </p>
 
+<p align="center">
+  <img src="docs/assets/og-image.png" alt="Patchly" />
+</p>
+
 Patchly sits in the menu bar and scans every app in `/Applications` (plus `/Applications/Utilities` and `~/Applications`), checking each one against the Mac App Store, Homebrew, or its own Sparkle update feed — whichever applies — and shows you which ones actually have an update waiting.
 
 ## Requirements
