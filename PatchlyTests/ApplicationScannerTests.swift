@@ -135,6 +135,33 @@ final class ApplicationScannerTests: XCTestCase {
         XCTAssertEqual(apps.map(\.name), ["Outer"])
     }
 
+    func testSkipsPatchlyItself() async throws {
+        try makeFakeApp(
+            named: "Patchly.app",
+            infoPlist: [
+                "CFBundleName": "Patchly",
+                "CFBundleIdentifier": "com.mberrish.Patchly",
+                "CFBundleShortVersionString": "1.0"
+            ]
+        )
+        try makeFakeApp(
+            named: "Example.app",
+            infoPlist: [
+                "CFBundleName": "Example",
+                "CFBundleIdentifier": "com.example.app",
+                "CFBundleShortVersionString": "1.0"
+            ]
+        )
+
+        let scanner = ApplicationScanner(
+            rootDirectories: [tempDirectory],
+            excludedBundleIdentifier: "com.mberrish.Patchly"
+        )
+        let apps = await scanner.scanInstalledApps()
+
+        XCTAssertEqual(apps.map(\.name), ["Example"])
+    }
+
     @discardableResult
     private func makeFakeApp(named name: String, in directory: URL? = nil, infoPlist: [String: Any]) throws -> URL {
         let appURL = (directory ?? tempDirectory).appendingPathComponent(name, isDirectory: true)

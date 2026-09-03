@@ -7,12 +7,18 @@ import Foundation
 /// descends further than that, and never looks inside a matched `.app` bundle
 /// itself (those are also directories, but their contents aren't more apps to
 /// scan). Explicitly skips `/System/Applications` — OS-managed, not
-/// user-updatable. See CONTEXT.md.
+/// user-updatable — and Patchly itself, which self-updates via Sparkle
+/// outside the Refresh cycle. See CONTEXT.md.
 actor ApplicationScanner {
     private let rootDirectories: [URL]
+    private let excludedBundleIdentifier: String?
 
-    init(rootDirectories: [URL] = ApplicationScanner.defaultRootDirectories()) {
+    init(
+        rootDirectories: [URL] = ApplicationScanner.defaultRootDirectories(),
+        excludedBundleIdentifier: String? = Bundle.main.bundleIdentifier
+    ) {
         self.rootDirectories = rootDirectories
+        self.excludedBundleIdentifier = excludedBundleIdentifier
     }
 
     static func defaultRootDirectories() -> [URL] {
@@ -33,6 +39,16 @@ actor ApplicationScanner {
             for bundleURL in appBundleURLs(in: directory) {
                 guard seenBundlePaths.insert(bundleURL.path).inserted else { continue }
                 if let app = readApp(at: bundleURL) {
+                    // Patchly is never one of its own Scanned Apps — it
+                    // self-updates via Sparkle, separately from the Refresh
+                    // cycle, so a row for it would offer an Update Action
+                    // that duplicates "Check for Updates…" at best. Matched
+                    // by bundle identifier, not path, so an installed copy
+                    // is excluded even when the running build lives
+                    // elsewhere (e.g. Xcode's DerivedData).
+                    if let excludedBundleIdentifier, app.bundleIdentifier == excludedBundleIdentifier {
+                        continue
+                    }
                     discovered.append(app)
                 }
             }
