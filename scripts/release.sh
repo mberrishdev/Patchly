@@ -133,13 +133,18 @@ if ! $DRY_RUN; then
   echo "  reports $BUILT_SHORT ($BUILT_BUILD)"
 fi
 
-# Ad-hoc sign if the archive came out unsigned, so Gatekeeper's message is
-# "unidentified developer" rather than "damaged". Patchly has no Developer ID
-# yet — this is the whole signing story for now.
-if ! codesign -dv "$APP" >/dev/null 2>&1; then
-  step "Ad-hoc signing (no Developer ID in this build)"
-  codesign --force --deep --sign - "$APP"
-fi
+# Always ad-hoc sign the whole bundle. With CODE_SIGNING_ALLOWED=NO the
+# archive still carries the linker's ad-hoc signature on the executable, but
+# that seals no resources and leaves Sparkle.framework unsigned, so
+# `codesign --verify` fails — and Sparkle refuses any update whose bundle
+# fails that check ("improperly signed"), even with a valid EdDSA signature.
+# No `--options runtime`: hardened runtime's library validation would block
+# an ad-hoc app from loading its ad-hoc Sparkle.framework. Patchly has no
+# Developer ID yet — this is the whole signing story for now.
+step "Ad-hoc signing (no Developer ID in this build)"
+codesign --force --deep --sign - "$APP"
+codesign --verify --deep --strict "$APP" 2>&1 | sed 's/^/  /' \
+  || fail "the signed app fails codesign --verify — Sparkle would reject it"
 codesign -dv "$APP" 2>&1 | grep -E "Authority|Signature" | sed 's/^/  /' || true
 
 # --------------------------------------------------------------------- dmg
