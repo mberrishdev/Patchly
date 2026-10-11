@@ -10,69 +10,104 @@ struct MenuBarContentView: View {
     @State private var showBatchUpdateConfirm = false
     @State private var showCLIToolBatchUpdateConfirm = false
     @State private var searchText = ""
+    @State private var selectedTab: DropdownTab = .updates
+    @State private var usageOrder: UsageOrder = .mostUsed
 
     var body: some View {
         VStack(spacing: 0) {
             header
+            tabPicker
             Divider()
             searchField
             Divider()
-            if filteredApps.isEmpty && filteredCLITools.isEmpty {
-                emptyState
-            } else {
-                ScrollView {
-                    LazyVStack(spacing: 0) {
-                        ForEach(filteredApps) { app in
-                            AppRowView(
-                                app: app,
-                                isSelected: app.updateStatus.isUpdateAvailable ? selectionBinding(for: app) : nil,
-                                isInstalling: appState.installingBundlePaths.contains(app.bundlePath),
-                                onUpdate: {
-                                    Task { await appState.installUpdates(for: [app.bundlePath]) }
-                                },
-                                onInstallMas: {
-                                    Task { await appState.installMasCLI() }
-                                }
-                            )
-                            Divider()
-                        }
-
-                        if !filteredCLITools.isEmpty {
-                            cliToolsHeader
-                            ForEach(filteredCLITools) { tool in
-                                CLIToolRowView(
-                                    tool: tool,
-                                    isSelected: tool.updateStatus.isUpdateAvailable ? cliToolSelectionBinding(for: tool) : nil,
-                                    isInstalling: appState.installingCLIToolNames.contains(tool.name),
-                                    onUpdate: {
-                                        Task { await appState.installCLIToolUpdates(for: [tool.name]) }
-                                    }
-                                )
-                                Divider()
-                            }
-                        }
-                    }
-                }
-                // `maxHeight` alone gives ScrollView no reliable intrinsic size in a
-                // MenuBarExtra `.window` popover, and it can collapse to zero height.
-                // Compute an explicit height from row count instead, floored to a
-                // whole number of rows — a partial row peeking at the clipped edge
-                // reads as if the footer below is covering it.
-                .frame(height: listHeight)
-
-                if !appState.selectedBundlePaths.isEmpty {
-                    Divider()
-                    selectionBar
-                }
-                if !appState.selectedCLIToolNames.isEmpty {
-                    Divider()
-                    cliToolSelectionBar
-                }
+            switch selectedTab {
+            case .updates:
+                updatesContent
+            case .usage:
+                usageContent
             }
             Divider()
             footer
         }
         .frame(width: 340)
+    }
+
+    private var tabPicker: some View {
+        Picker("View", selection: $selectedTab) {
+            ForEach(DropdownTab.allCases) { tab in
+                Text(tab.title).tag(tab)
+            }
+        }
+        .pickerStyle(.segmented)
+        .labelsHidden()
+        .padding(.horizontal, 12)
+        .padding(.bottom, 8)
+    }
+
+    @ViewBuilder
+    private var usageContent: some View {
+        let apps = searchText.isEmpty
+            ? appState.scannedApps
+            : appState.scannedApps.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
+        if apps.isEmpty {
+            emptyState
+        } else {
+            UsageListView(apps: apps, order: $usageOrder)
+        }
+    }
+
+    @ViewBuilder
+    private var updatesContent: some View {
+        if filteredApps.isEmpty && filteredCLITools.isEmpty {
+            emptyState
+        } else {
+            ScrollView {
+                LazyVStack(spacing: 0) {
+                    ForEach(filteredApps) { app in
+                        AppRowView(
+                            app: app,
+                            isSelected: app.updateStatus.isUpdateAvailable ? selectionBinding(for: app) : nil,
+                            isInstalling: appState.installingBundlePaths.contains(app.bundlePath),
+                            onUpdate: {
+                                Task { await appState.installUpdates(for: [app.bundlePath]) }
+                            },
+                            onInstallMas: {
+                                Task { await appState.installMasCLI() }
+                            }
+                        )
+                        Divider()
+                    }
+
+                    if !filteredCLITools.isEmpty {
+                        cliToolsHeader
+                        ForEach(filteredCLITools) { tool in
+                            CLIToolRowView(
+                                tool: tool,
+                                isSelected: tool.updateStatus.isUpdateAvailable ? cliToolSelectionBinding(for: tool) : nil,
+                                isInstalling: appState.installingCLIToolNames.contains(tool.name),
+                                onUpdate: {
+                                    Task { await appState.installCLIToolUpdates(for: [tool.name]) }
+                                }
+                            )
+                            Divider()
+                        }
+                    }
+                }
+            }
+            .frame(height: DropdownListHeight.height(
+                rowCount: filteredApps.count + filteredCLITools.count,
+                sectionHeaderCount: filteredCLITools.isEmpty ? 0 : 1
+            ))
+
+            if !appState.selectedBundlePaths.isEmpty {
+                Divider()
+                selectionBar
+            }
+            if !appState.selectedCLIToolNames.isEmpty {
+                Divider()
+                cliToolSelectionBar
+            }
+        }
     }
 
     private var filteredApps: [ScannedApp] {
@@ -287,24 +322,6 @@ struct MenuBarContentView: View {
         .buttonStyle(.plain)
     }
 
-    private var listHeight: CGFloat {
-        let estimatedRowHeight: CGFloat = 44
-        let estimatedSectionHeaderHeight: CGFloat = 22
-        let maxHeight: CGFloat = 420
-        var contentHeight = CGFloat(filteredApps.count) * estimatedRowHeight
-        if !filteredCLITools.isEmpty {
-            contentHeight += estimatedSectionHeaderHeight
-            contentHeight += CGFloat(filteredCLITools.count) * estimatedRowHeight
-        }
-        guard contentHeight > maxHeight else {
-            return max(contentHeight, estimatedRowHeight)
-        }
-        // Floor to a whole number of rows within the cap — a partial row
-        // peeking at the clipped edge reads as though the footer below it
-        // is covering the text, rather than as a normal scroll boundary.
-        return (maxHeight / estimatedRowHeight).rounded(.down) * estimatedRowHeight
-    }
-
     private var lastRefreshedText: String {
         guard let date = appState.lastRefreshDate else { return "Not yet refreshed" }
         let formatter = RelativeDateTimeFormatter()
@@ -316,4 +333,19 @@ struct MenuBarContentView: View {
 #Preview {
     let settings = AppSettings()
     return MenuBarContentView(appState: AppState(settings: settings), updater: AppUpdater(), settings: settings)
+}
+
+/// The dropdown's two views of the same Scanned Apps. See CONTEXT.md ("Usage view").
+enum DropdownTab: String, CaseIterable, Identifiable {
+    case updates
+    case usage
+
+    var id: Self { self }
+
+    var title: String {
+        switch self {
+        case .updates: "Updates"
+        case .usage: "Usage"
+        }
+    }
 }

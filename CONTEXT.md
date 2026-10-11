@@ -68,6 +68,15 @@ _Avoid_: Brew formula, formula tool, CLI Tool Source (there's only ever this one
 **Last Used Date**: When a Scanned App was last opened, read from Spotlight's `kMDItemLastUsedDate` during the scan — the same "Last opened" date Finder shows. Optional: Spotlight has none for many apps.
 _Avoid_: Last launched, last opened date (as a type/field name), usage (Patchly tracks no usage of its own — this is only what macOS already recorded)
 
+**Use Count**: How many times a Scanned App has been opened, read from Spotlight's `kMDItemUseCount` during the scan. Optional, and missing for most apps that also lack a Last Used Date.
+_Avoid_: Launch count, open count (as a type/field name), frequency
+
+**App Size**: A Scanned App's bundle size on disk (allocated, not logical — what Finder calls "Size on disk"), read from Spotlight's `kMDItemPhysicalSize` during the scan, or measured by walking the bundle when Spotlight has none.
+_Avoid_: Storage, disk usage, footprint (it's only the `.app` bundle — never the app's data in `~/Library`)
+
+**Usage view**: The dropdown's second tab, next to the Updates list: every Scanned App with its Use Count, Last Used Date, and App Size, ordered Most Used, Least Used, or Largest.
+_Avoid_: Stats, analytics, Usage tab (as a type name — the tab is `DropdownTab.usage`, the view is `UsageListView`)
+
 **Search**: A case-insensitive substring filter on Scanned App and CLI Tool names, applied only to what's currently displayed in the dropdown.
 _Avoid_: Filter (Search is the user-typed text specifically; it never changes the Cache Snapshot, sort order, or Refresh behavior)
 
@@ -125,8 +134,11 @@ _Avoid_: Filter (Search is the user-typed text specifically; it never changes th
 - A CLI Tool row shows a checkbox for Selection whenever it has an Update Available, exactly like a Scanned App row — checking multiple CLI Tools and clicking Update Selected shows its own confirmation, independent of any Scanned App Selection, and installs the checked tools in parallel the same way a batch app update does
 - The CLI Tools list sorts the same way the Scanned Apps list does — Update Available first, then Check Failed, then Up to Date, then Unknown — No Source, alphabetically within each group — so a tool needing an update isn't buried alphabetically among however many formulae are installed
 - A Refresh publishes Scanned Apps as soon as they're ready rather than waiting on CLI Tools too, since there's no reason to hold the app results back for an unrelated check — the two passes start concurrently. `isRefreshing` — and the disabled Refresh button — stays true for the whole duration, not just the apps portion
-- A Scanned App's Last Used Date is read during the scan step of every Refresh, from Spotlight metadata only — no Full Disk Access, no reading other apps' data, no usage tracking by Patchly itself. It's display-only: it never affects sort order, the Badge Count, or Update Source attribution
-- A missing Last Used Date shows nothing in the row, never "Never opened" — macOS doesn't record every kind of launch, and replacing an app's bundle (by any updater, including Patchly's own Update Actions) clears it, so absence says nothing about whether the app was ever used
+- A Scanned App's Last Used Date, Use Count, and App Size are read during the scan step of every Refresh, from Spotlight metadata only — no Full Disk Access, no reading other apps' data, no usage tracking by Patchly itself. They only appear in the Usage view: they never affect the Updates list's sort order, the Badge Count, or Update Source attribution
+- A missing Last Used Date and Use Count show "No usage recorded", never "Never opened" — macOS doesn't record every kind of launch, and replacing an app's bundle (by any updater, including Patchly's own Update Actions) clears both, so absence says nothing about whether the app was ever used
+- The Usage view's Most Used order sorts by Use Count, then most recent Last Used Date; Least Used is the reverse, so apps with no usage recorded come first; Largest sorts by App Size. A missing Use Count counts as zero, a missing Last Used Date as the least recent, and ties fall back to name
+- Walking a bundle to measure its App Size visits every file in it (all installed apps together take around 17 seconds), so it only happens for apps Spotlight has no size for, and runs concurrently with the Update Source checks rather than before them
+- Search filters the Usage view the same way it filters the Updates list
 - The auto-Refresh interval is user-configurable from Settings (1/3/6/12/24 hours), backed by the same `refreshIntervalSeconds` the timer already reads
 
 ## Flagged ambiguities

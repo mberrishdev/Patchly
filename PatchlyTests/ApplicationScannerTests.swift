@@ -163,7 +163,7 @@ final class ApplicationScannerTests: XCTestCase {
     }
 
     @discardableResult
-    func testReadsLastUsedDateForEachApp() async throws {
+    func testReadsSpotlightMetadataForEachApp() async throws {
         try makeFakeApp(
             named: "Example.app",
             infoPlist: ["CFBundleName": "Example", "CFBundleShortVersionString": "1.0"]
@@ -176,25 +176,37 @@ final class ApplicationScannerTests: XCTestCase {
 
         let scanner = ApplicationScanner(
             rootDirectories: [tempDirectory],
-            lastUsedDateReader: { $0.lastPathComponent == "Example.app" ? lastUsed : nil }
+            spotlightMetadataReader: {
+                $0.lastPathComponent == "Example.app"
+                    ? SpotlightMetadata(lastUsedDate: lastUsed, useCount: 12, sizeInBytes: 4_096)
+                    : SpotlightMetadata()
+            }
         )
         let apps = await scanner.scanInstalledApps()
 
-        XCTAssertEqual(apps.first { $0.name == "Example" }?.lastUsedDate, lastUsed)
-        XCTAssertNil(apps.first { $0.name == "Other" }?.lastUsedDate)
+        let example = apps.first { $0.name == "Example" }
+        XCTAssertEqual(example?.lastUsedDate, lastUsed)
+        XCTAssertEqual(example?.useCount, 12)
+        XCTAssertEqual(example?.sizeInBytes, 4_096)
+        let other = apps.first { $0.name == "Other" }
+        XCTAssertNil(other?.lastUsedDate)
+        XCTAssertNil(other?.useCount)
+        XCTAssertNil(other?.sizeInBytes)
     }
 
-    func testMissingLastUsedDateIsNil() async throws {
+    func testMissingSpotlightMetadataIsNil() async throws {
         try makeFakeApp(
             named: "Example.app",
             infoPlist: ["CFBundleName": "Example", "CFBundleShortVersionString": "1.0"]
         )
 
-        let scanner = ApplicationScanner(rootDirectories: [tempDirectory], lastUsedDateReader: { _ in nil })
+        let scanner = ApplicationScanner(rootDirectories: [tempDirectory], spotlightMetadataReader: { _ in SpotlightMetadata() })
         let apps = await scanner.scanInstalledApps()
 
         XCTAssertEqual(apps.count, 1)
         XCTAssertNil(apps.first?.lastUsedDate)
+        XCTAssertNil(apps.first?.useCount)
+        XCTAssertNil(apps.first?.sizeInBytes)
     }
 
     private func makeFakeApp(named name: String, in directory: URL? = nil, infoPlist: [String: Any]) throws -> URL {

@@ -17,6 +17,12 @@ struct DiscoveredApp: Hashable, Sendable {
     /// Spotlight's record of when the app was last opened, if it has one.
     /// See CONTEXT.md ("Last Used Date").
     let lastUsedDate: Date?
+    /// Spotlight's count of how many times the app was opened, if it has one.
+    /// See CONTEXT.md ("Use Count").
+    let useCount: Int?
+    /// The bundle's size on disk, from Spotlight when it has one; filled in
+    /// by measuring the bundle otherwise. See CONTEXT.md ("App Size").
+    let sizeInBytes: Int64?
 
     init(
         name: String,
@@ -27,7 +33,9 @@ struct DiscoveredApp: Hashable, Sendable {
         sparkleFeedURL: URL?,
         electronUpdateConfig: ElectronUpdateConfig? = nil,
         sparklePublicEDKey: String? = nil,
-        lastUsedDate: Date? = nil
+        lastUsedDate: Date? = nil,
+        useCount: Int? = nil,
+        sizeInBytes: Int64? = nil
     ) {
         self.name = name
         self.bundlePath = bundlePath
@@ -38,6 +46,8 @@ struct DiscoveredApp: Hashable, Sendable {
         self.electronUpdateConfig = electronUpdateConfig
         self.sparklePublicEDKey = sparklePublicEDKey
         self.lastUsedDate = lastUsedDate
+        self.useCount = useCount
+        self.sizeInBytes = sizeInBytes
     }
 
     var bundleFilename: String {

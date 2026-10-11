@@ -13,25 +13,30 @@ import Foundation
 actor ApplicationScanner {
     private let rootDirectories: [URL]
     private let excludedBundleIdentifier: String?
-    private let lastUsedDateReader: @Sendable (URL) -> Date?
+    private let spotlightMetadataReader: @Sendable (URL) -> SpotlightMetadata
 
     init(
         rootDirectories: [URL] = ApplicationScanner.defaultRootDirectories(),
         excludedBundleIdentifier: String? = Bundle.main.bundleIdentifier,
-        lastUsedDateReader: @escaping @Sendable (URL) -> Date? = ApplicationScanner.spotlightLastUsedDate
+        spotlightMetadataReader: @escaping @Sendable (URL) -> SpotlightMetadata = ApplicationScanner.spotlightMetadata
     ) {
         self.rootDirectories = rootDirectories
         self.excludedBundleIdentifier = excludedBundleIdentifier
-        self.lastUsedDateReader = lastUsedDateReader
+        self.spotlightMetadataReader = spotlightMetadataReader
     }
 
-    /// Spotlight's `kMDItemLastUsedDate` — the same "Last opened" date Finder
-    /// shows. Often missing: macOS doesn't record every kind of launch, and
-    /// replacing an app's bundle (including via an Update Action) clears it.
-    /// See CONTEXT.md ("Last Used Date").
-    static func spotlightLastUsedDate(for bundleURL: URL) -> Date? {
-        guard let item = MDItemCreateWithURL(nil, bundleURL as CFURL) else { return nil }
-        return MDItemCopyAttribute(item, kMDItemLastUsedDate) as? Date
+    /// What Spotlight already recorded about a bundle: `kMDItemLastUsedDate`
+    /// (Finder's "Last opened"), `kMDItemUseCount`, and `kMDItemPhysicalSize`.
+    /// Any of them can be missing — macOS doesn't record every kind of launch,
+    /// replacing a bundle (including via an Update Action) clears the usage
+    /// fields, and some bundles are never sized. See CONTEXT.md.
+    static func spotlightMetadata(for bundleURL: URL) -> SpotlightMetadata {
+        guard let item = MDItemCreateWithURL(nil, bundleURL as CFURL) else { return SpotlightMetadata() }
+        return SpotlightMetadata(
+            lastUsedDate: MDItemCopyAttribute(item, kMDItemLastUsedDate) as? Date,
+            useCount: (MDItemCopyAttribute(item, "kMDItemUseCount" as CFString) as? NSNumber)?.intValue,
+            sizeInBytes: (MDItemCopyAttribute(item, "kMDItemPhysicalSize" as CFString) as? NSNumber)?.int64Value
+        )
     }
 
     static func defaultRootDirectories() -> [URL] {
@@ -125,6 +130,7 @@ actor ApplicationScanner {
             .flatMap(ElectronUpdateConfigParser.parse)
 
         let publicEDKey = info["SUPublicEDKey"] as? String
+        let spotlight = spotlightMetadataReader(bundleURL)
 
         return DiscoveredApp(
             name: name,
@@ -135,7 +141,15 @@ actor ApplicationScanner {
             sparkleFeedURL: feedURL,
             electronUpdateConfig: electronConfig,
             sparklePublicEDKey: publicEDKey,
-            lastUsedDate: lastUsedDateReader(bundleURL)
+            lastUsedDate: spotlight.lastUsedDate,
+            useCount: spotlight.useCount,
+            sizeInBytes: spotlight.sizeInBytes
         )
     }
+}
+
+struct SpotlightMetadata: Sendable {
+    var lastUsedDate: Date?
+    var useCount: Int?
+    var sizeInBytes: Int64?
 }

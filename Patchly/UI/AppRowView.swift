@@ -40,16 +40,7 @@ struct AppRowView: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(app.name).font(.body)
-                HStack(spacing: 4) {
-                    Text(versionText)
-                        .layoutPriority(1)
-                    if let lastUsedText {
-                        Text("· \(lastUsedText)")
-                    }
-                }
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .lineLimit(1)
+                Text(versionText).font(.caption).foregroundStyle(.secondary)
             }
         }
         .contentShape(Rectangle())
@@ -75,12 +66,6 @@ struct AppRowView: View {
         default:
             app.installedVersion
         }
-    }
-
-    /// Shown only when Spotlight has a date — a missing one doesn't mean
-    /// "never opened" (an update clears it), so it says nothing instead.
-    private var lastUsedText: String? {
-        app.lastUsedDate.map { "Opened \($0.formatted(.relative(presentation: .named)))" }
     }
 
     @ViewBuilder
@@ -147,8 +132,7 @@ private extension ScannedApp {
             installedVersion: "1.0.0",
             source: source,
             updateStatus: status,
-            lastCheckedAt: Date(),
-            lastUsedDate: Date().addingTimeInterval(-2 * 24 * 60 * 60)
+            lastCheckedAt: Date()
         )
     }
 }

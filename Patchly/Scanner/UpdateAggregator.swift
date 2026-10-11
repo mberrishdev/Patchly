@@ -36,7 +36,11 @@ actor UpdateAggregator {
 
     func refresh() async -> [ScannedApp] {
         let discovered = await scanner.scanInstalledApps()
-        return await Self.mergeResults(
+        // Measuring a bundle Spotlight never sized walks every file in it,
+        // so it runs alongside the Update Source checks rather than
+        // delaying them. See CONTEXT.md ("App Size").
+        async let measuredSizes = AppSizeCalculator.measureUnsizedApps(discovered)
+        let apps = await Self.mergeResults(
             discovered: discovered,
             macAppStoreChecker: macAppStoreChecker,
             homebrewCaskChecker: homebrewCaskChecker,
@@ -44,6 +48,14 @@ actor UpdateAggregator {
             sparkleFeedChecker: sparkleFeedChecker,
             customAppSourceChecker: customAppSourceChecker
         )
+        let sizes = await measuredSizes
+        return apps.map { app in
+            var app = app
+            if app.sizeInBytes == nil {
+                app.sizeInBytes = sizes[app.bundlePath]
+            }
+            return app
+        }
     }
 
     static func mergeResults(
@@ -75,7 +87,9 @@ actor UpdateAggregator {
                 updateStatus: status,
                 lastCheckedAt: now,
                 updateAction: action,
-                lastUsedDate: app.lastUsedDate
+                lastUsedDate: app.lastUsedDate,
+                useCount: app.useCount,
+                sizeInBytes: app.sizeInBytes
             )
         }
     }
