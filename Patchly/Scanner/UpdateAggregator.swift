@@ -74,7 +74,8 @@ actor UpdateAggregator {
                 source: source,
                 updateStatus: status,
                 lastCheckedAt: now,
-                updateAction: action
+                updateAction: action,
+                lastUsedDate: app.lastUsedDate
             )
         }
     }

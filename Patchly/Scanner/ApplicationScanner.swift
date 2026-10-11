@@ -1,3 +1,4 @@
+import CoreServices
 import Foundation
 
 /// Enumerates `/Applications`, `/Applications/Utilities`, and `~/Applications` for
@@ -12,13 +13,25 @@ import Foundation
 actor ApplicationScanner {
     private let rootDirectories: [URL]
     private let excludedBundleIdentifier: String?
+    private let lastUsedDateReader: @Sendable (URL) -> Date?
 
     init(
         rootDirectories: [URL] = ApplicationScanner.defaultRootDirectories(),
-        excludedBundleIdentifier: String? = Bundle.main.bundleIdentifier
+        excludedBundleIdentifier: String? = Bundle.main.bundleIdentifier,
+        lastUsedDateReader: @escaping @Sendable (URL) -> Date? = ApplicationScanner.spotlightLastUsedDate
     ) {
         self.rootDirectories = rootDirectories
         self.excludedBundleIdentifier = excludedBundleIdentifier
+        self.lastUsedDateReader = lastUsedDateReader
+    }
+
+    /// Spotlight's `kMDItemLastUsedDate` — the same "Last opened" date Finder
+    /// shows. Often missing: macOS doesn't record every kind of launch, and
+    /// replacing an app's bundle (including via an Update Action) clears it.
+    /// See CONTEXT.md ("Last Used Date").
+    static func spotlightLastUsedDate(for bundleURL: URL) -> Date? {
+        guard let item = MDItemCreateWithURL(nil, bundleURL as CFURL) else { return nil }
+        return MDItemCopyAttribute(item, kMDItemLastUsedDate) as? Date
     }
 
     static func defaultRootDirectories() -> [URL] {
@@ -121,7 +134,8 @@ actor ApplicationScanner {
             hasMacAppStoreReceipt: hasReceipt,
             sparkleFeedURL: feedURL,
             electronUpdateConfig: electronConfig,
-            sparklePublicEDKey: publicEDKey
+            sparklePublicEDKey: publicEDKey,
+            lastUsedDate: lastUsedDateReader(bundleURL)
         )
     }
 }

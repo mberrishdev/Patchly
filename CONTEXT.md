@@ -65,6 +65,9 @@ _Avoid_: CLI app, command-line app, Scanned App (a wholly separate concept), bin
 **Homebrew Formula Source**: The CLI Tool Source — the only one Patchly has. A CLI Tool's Update Status comes from `brew info --json=v2 --formula --installed`, matched directly by formula name.
 _Avoid_: Brew formula, formula tool, CLI Tool Source (there's only ever this one, so the more general term is unnecessary)
 
+**Last Used Date**: When a Scanned App was last opened, read from Spotlight's `kMDItemLastUsedDate` during the scan — the same "Last opened" date Finder shows. Optional: Spotlight has none for many apps.
+_Avoid_: Last launched, last opened date (as a type/field name), usage (Patchly tracks no usage of its own — this is only what macOS already recorded)
+
 **Search**: A case-insensitive substring filter on Scanned App and CLI Tool names, applied only to what's currently displayed in the dropdown.
 _Avoid_: Filter (Search is the user-typed text specifically; it never changes the Cache Snapshot, sort order, or Refresh behavior)
 
@@ -122,6 +125,8 @@ _Avoid_: Filter (Search is the user-typed text specifically; it never changes th
 - A CLI Tool row shows a checkbox for Selection whenever it has an Update Available, exactly like a Scanned App row — checking multiple CLI Tools and clicking Update Selected shows its own confirmation, independent of any Scanned App Selection, and installs the checked tools in parallel the same way a batch app update does
 - The CLI Tools list sorts the same way the Scanned Apps list does — Update Available first, then Check Failed, then Up to Date, then Unknown — No Source, alphabetically within each group — so a tool needing an update isn't buried alphabetically among however many formulae are installed
 - A Refresh publishes Scanned Apps as soon as they're ready rather than waiting on CLI Tools too, since there's no reason to hold the app results back for an unrelated check — the two passes start concurrently. `isRefreshing` — and the disabled Refresh button — stays true for the whole duration, not just the apps portion
+- A Scanned App's Last Used Date is read during the scan step of every Refresh, from Spotlight metadata only — no Full Disk Access, no reading other apps' data, no usage tracking by Patchly itself. It's display-only: it never affects sort order, the Badge Count, or Update Source attribution
+- A missing Last Used Date shows nothing in the row, never "Never opened" — macOS doesn't record every kind of launch, and replacing an app's bundle (by any updater, including Patchly's own Update Actions) clears it, so absence says nothing about whether the app was ever used
 - The auto-Refresh interval is user-configurable from Settings (1/3/6/12/24 hours), backed by the same `refreshIntervalSeconds` the timer already reads
 
 ## Flagged ambiguities

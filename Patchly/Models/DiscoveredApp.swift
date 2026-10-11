@@ -14,6 +14,9 @@ struct DiscoveredApp: Hashable, Sendable {
     /// one — needed to verify a Sparkle update before Patchly installs it
     /// directly. See CONTEXT.md.
     let sparklePublicEDKey: String?
+    /// Spotlight's record of when the app was last opened, if it has one.
+    /// See CONTEXT.md ("Last Used Date").
+    let lastUsedDate: Date?
 
     init(
         name: String,
@@ -23,7 +26,8 @@ struct DiscoveredApp: Hashable, Sendable {
         hasMacAppStoreReceipt: Bool,
         sparkleFeedURL: URL?,
         electronUpdateConfig: ElectronUpdateConfig? = nil,
-        sparklePublicEDKey: String? = nil
+        sparklePublicEDKey: String? = nil,
+        lastUsedDate: Date? = nil
     ) {
         self.name = name
         self.bundlePath = bundlePath
@@ -33,6 +37,7 @@ struct DiscoveredApp: Hashable, Sendable {
         self.sparkleFeedURL = sparkleFeedURL
         self.electronUpdateConfig = electronUpdateConfig
         self.sparklePublicEDKey = sparklePublicEDKey
+        self.lastUsedDate = lastUsedDate
     }
 
     var bundleFilename: String {

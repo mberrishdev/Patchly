@@ -163,6 +163,40 @@ final class ApplicationScannerTests: XCTestCase {
     }
 
     @discardableResult
+    func testReadsLastUsedDateForEachApp() async throws {
+        try makeFakeApp(
+            named: "Example.app",
+            infoPlist: ["CFBundleName": "Example", "CFBundleShortVersionString": "1.0"]
+        )
+        try makeFakeApp(
+            named: "Other.app",
+            infoPlist: ["CFBundleName": "Other", "CFBundleShortVersionString": "1.0"]
+        )
+        let lastUsed = Date(timeIntervalSince1970: 1_790_000_000)
+
+        let scanner = ApplicationScanner(
+            rootDirectories: [tempDirectory],
+            lastUsedDateReader: { $0.lastPathComponent == "Example.app" ? lastUsed : nil }
+        )
+        let apps = await scanner.scanInstalledApps()
+
+        XCTAssertEqual(apps.first { $0.name == "Example" }?.lastUsedDate, lastUsed)
+        XCTAssertNil(apps.first { $0.name == "Other" }?.lastUsedDate)
+    }
+
+    func testMissingLastUsedDateIsNil() async throws {
+        try makeFakeApp(
+            named: "Example.app",
+            infoPlist: ["CFBundleName": "Example", "CFBundleShortVersionString": "1.0"]
+        )
+
+        let scanner = ApplicationScanner(rootDirectories: [tempDirectory], lastUsedDateReader: { _ in nil })
+        let apps = await scanner.scanInstalledApps()
+
+        XCTAssertEqual(apps.count, 1)
+        XCTAssertNil(apps.first?.lastUsedDate)
+    }
+
     private func makeFakeApp(named name: String, in directory: URL? = nil, infoPlist: [String: Any]) throws -> URL {
         let appURL = (directory ?? tempDirectory).appendingPathComponent(name, isDirectory: true)
         let contentsURL = appURL.appendingPathComponent("Contents", isDirectory: true)

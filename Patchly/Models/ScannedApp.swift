@@ -13,6 +13,9 @@ struct ScannedApp: Identifiable, Codable, Hashable, Sendable {
     /// How to actually install this app's update, if Patchly knows how.
     /// See CONTEXT.md's Relationships section for what each case does.
     var updateAction: UpdateAction? = nil
+    /// When the app was last opened, per Spotlight — display only, never
+    /// affects sort order or the Badge Count. See CONTEXT.md ("Last Used Date").
+    var lastUsedDate: Date? = nil
 }
 
 enum UpdateAction: Codable, Hashable, Sendable {
