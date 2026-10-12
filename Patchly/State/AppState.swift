@@ -14,6 +14,10 @@ final class AppState: ObservableObject {
     @Published private(set) var installingCLIToolNames: Set<String> = []
     @Published var selectedBundlePaths: Set<String> = []
     @Published var selectedCLIToolNames: Set<String> = []
+    /// Bundle paths of the apps open right now, kept live from NSWorkspace's
+    /// launch/terminate notifications rather than read during the scan.
+    /// Usage view only. See CONTEXT.md ("Open Now").
+    @Published private(set) var runningBundlePaths: Set<String> = []
 
     var badgeCount: Int {
         scannedApps.filter(\.updateStatus.isUpdateAvailable).count
@@ -74,6 +78,7 @@ final class AppState: ObservableObject {
         refresh()
         scheduleTimer()
         observeWake()
+        observeRunningApps()
     }
 
     func refresh() {
@@ -275,6 +280,25 @@ final class AppState: ObservableObject {
                 self?.refreshIfIntervalHasElapsedSinceLastRefresh()
             }
         }
+    }
+
+    /// Not removed in deinit, for the same reason as `observeWake()`.
+    private func observeRunningApps() {
+        updateRunningBundlePaths()
+        let center = NSWorkspace.shared.notificationCenter
+        for name in [NSWorkspace.didLaunchApplicationNotification, NSWorkspace.didTerminateApplicationNotification] {
+            center.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in
+                Task { @MainActor in
+                    self?.updateRunningBundlePaths()
+                }
+            }
+        }
+    }
+
+    private func updateRunningBundlePaths() {
+        runningBundlePaths = Set(
+            NSWorkspace.shared.runningApplications.compactMap { $0.bundleURL?.standardizedFileURL.path }
+        )
     }
 
     /// A wake-from-sleep re-check only actually runs a Refresh if the

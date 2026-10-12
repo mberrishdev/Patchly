@@ -35,6 +35,31 @@ final class UsageOrderTests: XCTestCase {
         XCTAssertEqual(UsageOrder.largest.sorted(apps).map(\.name), ["Huge", "Small", "Unsized"])
     }
 
+    func testOpenNowCountsAsMostRecentlyUsed() {
+        let apps = [
+            app("ClosedRecently", useCount: 13, lastUsed: now.addingTimeInterval(-60)),
+            app("OpenSinceLastWeek", useCount: 13, lastUsed: now.addingTimeInterval(-7 * 86_400)),
+        ]
+
+        XCTAssertEqual(
+            UsageOrder.mostUsed.sorted(apps, runningBundlePaths: ["/Applications/OpenSinceLastWeek.app"], now: now).map(\.name),
+            ["OpenSinceLastWeek", "ClosedRecently"]
+        )
+    }
+
+    func testLeastUsedPutsOpenNowAppsLastEvenWithNoRecord() {
+        let apps = [
+            app("OpenButUnrecorded", useCount: nil, lastUsed: nil),
+            app("Daily", useCount: 345, lastUsed: now),
+            app("NeverRecorded", useCount: nil, lastUsed: nil),
+        ]
+
+        XCTAssertEqual(
+            UsageOrder.leastUsed.sorted(apps, runningBundlePaths: ["/Applications/OpenButUnrecorded.app"], now: now).map(\.name),
+            ["NeverRecorded", "Daily", "OpenButUnrecorded"]
+        )
+    }
+
     func testTiesFallBackToName() {
         let apps = [app("Beta"), app("alpha"), app("Gamma")]
 

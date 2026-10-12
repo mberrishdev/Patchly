@@ -71,6 +71,9 @@ _Avoid_: Last launched, last opened date (as a type/field name), usage (Patchly 
 **Use Count**: How many times a Scanned App has been opened, read from Spotlight's `kMDItemUseCount` during the scan. Optional, and missing for most apps that also lack a Last Used Date.
 _Avoid_: Launch count, open count (as a type/field name), frequency
 
+**Open Now**: Whether a Scanned App is running at this moment, per NSWorkspace's running applications — kept live from launch/terminate notifications, not read during the scan and never cached. Spotlight only moves a Last Used Date when an app is launched, and has none at all for apps that replace their own bundle when they auto-update, so an app left open for days would otherwise read as days old or as "No usage recorded".
+_Avoid_: Running (as a type/field name — the property is `runningBundlePaths`), active (that's the frontmost app)
+
 **App Size**: A Scanned App's bundle size on disk (allocated, not logical — what Finder calls "Size on disk"), read from Spotlight's `kMDItemPhysicalSize` during the scan, or measured by walking the bundle when Spotlight has none.
 _Avoid_: Storage, disk usage, footprint (it's only the `.app` bundle — never the app's data in `~/Library`)
 
@@ -137,6 +140,7 @@ _Avoid_: Filter (Search is the user-typed text specifically; it never changes th
 - A Scanned App's Last Used Date, Use Count, and App Size are read during the scan step of every Refresh, from Spotlight metadata only — no Full Disk Access, no reading other apps' data, no usage tracking by Patchly itself. They only appear in the Usage view: they never affect the Updates list's sort order, the Badge Count, or Update Source attribution
 - A missing Last Used Date and Use Count show "No usage recorded", never "Never opened" — macOS doesn't record every kind of launch, and replacing an app's bundle (by any updater, including Patchly's own Update Actions) clears both, so absence says nothing about whether the app was ever used
 - The Usage view's Most Used order sorts by Use Count, then most recent Last Used Date; Least Used is the reverse, so apps with no usage recorded come first; Largest sorts by App Size. A missing Use Count counts as zero, a missing Last Used Date as the least recent, and ties fall back to name
+- An app that's Open Now shows "Open now" in place of its Last Used Date, sorts as used this moment, and is always placed after closed apps in Least Used — whatever Spotlight has or lacks for it
 - Walking a bundle to measure its App Size visits every file in it (all installed apps together take around 17 seconds), so it only happens for apps Spotlight has no size for, and runs concurrently with the Update Source checks rather than before them
 - Search filters the Usage view the same way it filters the Updates list
 - The auto-Refresh interval is user-configurable from Settings (1/3/6/12/24 hours), backed by the same `refreshIntervalSeconds` the timer already reads

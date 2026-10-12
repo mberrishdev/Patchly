@@ -6,6 +6,7 @@ import SwiftUI
 /// an `AppRowView`. See CONTEXT.md ("Usage view").
 struct UsageRowView: View {
     let app: ScannedApp
+    let isOpenNow: Bool
 
     var body: some View {
         HStack(spacing: 10) {
@@ -35,12 +36,16 @@ struct UsageRowView: View {
 
     /// A missing Use Count or Last Used Date says nothing about whether the
     /// app was ever opened (an update clears both), so the fallback is
-    /// "No usage recorded", never "Never opened". See CONTEXT.md.
+    /// "No usage recorded", never "Never opened". An app that's Open Now says
+    /// so instead of its Last Used Date, which only moves on launch — an app
+    /// left open for a week would otherwise read "last week". See CONTEXT.md.
     private var usageText: String {
-        let lastUsed = app.lastUsedDate?.formatted(.relative(presentation: .named))
+        let lastUsed = isOpenNow ? "open now" : app.lastUsedDate?.formatted(.relative(presentation: .named))
         switch (app.useCount, lastUsed) {
         case let (count?, lastUsed?) where count > 0:
             return "\(count) \(count == 1 ? "open" : "opens") · \(lastUsed)"
+        case (_, _?) where isOpenNow:
+            return "Open now"
         case let (_, lastUsed?):
             return "Opened \(lastUsed)"
         default:

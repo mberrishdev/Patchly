@@ -6,6 +6,7 @@ import SwiftUI
 /// ("Usage view").
 struct UsageListView: View {
     let apps: [ScannedApp]
+    let runningBundlePaths: Set<String>
     @Binding var order: UsageOrder
 
     var body: some View {
@@ -14,8 +15,8 @@ struct UsageListView: View {
             Divider()
             ScrollView {
                 LazyVStack(spacing: 0) {
-                    ForEach(order.sorted(apps)) { app in
-                        UsageRowView(app: app)
+                    ForEach(order.sorted(apps, runningBundlePaths: runningBundlePaths)) { app in
+                        UsageRowView(app: app, isOpenNow: runningBundlePaths.contains(app.bundlePath))
                         Divider()
                     }
                 }

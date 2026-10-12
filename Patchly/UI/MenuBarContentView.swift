@@ -52,7 +52,7 @@ struct MenuBarContentView: View {
         if apps.isEmpty {
             emptyState
         } else {
-            UsageListView(apps: apps, order: $usageOrder)
+            UsageListView(apps: apps, runningBundlePaths: appState.runningBundlePaths, order: $usageOrder)
         }
     }
 
